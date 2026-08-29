@@ -1,0 +1,211 @@
+/* Launchy Illustrator admin — brand: emerald green / ink / paper white. */
+.launchy-app {
+	--launchy-green: #5aa96b;
+	--launchy-forest: #3e7a4e;
+	--launchy-ink: #14161b;
+	--launchy-paper: #f7f8f4;
+	--launchy-grey: #c9cfc9;
+	max-width: 880px;
+}
+
+.launchy-title {
+	display: flex;
+	align-items: center;
+	gap: 0.4em;
+}
+.launchy-badge {
+	display: inline-grid;
+	place-items: center;
+	width: 1.4em;
+	height: 1.4em;
+	border-radius: 50%;
+	background: var(--launchy-green);
+	color: #fff;
+	font-size: 0.8em;
+}
+.launchy-sub {
+	color: #50575e;
+	margin-top: 0;
+}
+
+.launchy-stylebar {
+	display: inline-block;
+	background: var(--launchy-paper);
+	border: 1px solid var(--launchy-grey);
+	border-radius: 999px;
+	padding: 4px 14px;
+	margin: 0 0 6px;
+}
+
+.launchy-card {
+	background: #fff;
+	border: 1px solid var(--launchy-grey);
+	border-left: 4px solid var(--launchy-green);
+	border-radius: 8px;
+	padding: 20px 24px;
+	margin: 18px 0;
+}
+
+.launchy-input {
+	width: 100%;
+	padding: 8px 10px;
+	margin-bottom: 12px;
+}
+
+.launchy-drafts,
+.launchy-plan,
+.launchy-gallery {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.launchy-draft button {
+	display: block;
+	width: 100%;
+	text-align: left;
+	background: var(--launchy-paper);
+	border: 1px solid var(--launchy-grey);
+	border-radius: 6px;
+	padding: 12px 14px;
+	margin-bottom: 8px;
+	cursor: pointer;
+	transition: border-color 0.15s, transform 0.05s;
+}
+.launchy-draft button:hover {
+	border-color: var(--launchy-green);
+}
+.launchy-meta {
+	display: block;
+	color: #6b7280;
+	font-size: 12px;
+	margin-top: 2px;
+}
+
+.launchy-place {
+	border: 1px solid var(--launchy-grey);
+	border-radius: 6px;
+	padding: 12px 14px;
+	margin-bottom: 10px;
+}
+.launchy-place[data-approved="false"] {
+	opacity: 0.5;
+}
+.launchy-place-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: 600;
+}
+.launchy-role {
+	display: inline-block;
+	background: var(--launchy-green);
+	color: #fff;
+	border-radius: 4px;
+	padding: 1px 8px;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+.launchy-ratio {
+	font-family: monospace;
+	color: var(--launchy-forest);
+}
+.launchy-anchor {
+	color: #6b7280;
+	font-weight: 400;
+}
+.launchy-scene {
+	width: 100%;
+	margin-top: 8px;
+	font-size: 13px;
+}
+.launchy-rationale {
+	color: #6b7280;
+	font-size: 12px;
+	font-style: italic;
+	margin: 4px 0 0;
+}
+
+.launchy-gallery-row {
+	border-bottom: 1px solid var(--launchy-grey);
+	padding: 14px 0;
+}
+.launchy-gallery-head {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 8px;
+}
+.launchy-variations {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+.launchy-shot {
+	border: 3px solid transparent;
+	border-radius: 6px;
+	padding: 0;
+	background: none;
+	cursor: pointer;
+	line-height: 0;
+}
+.launchy-shot img {
+	max-width: 220px;
+	height: auto;
+	border-radius: 3px;
+}
+.launchy-shot[data-chosen="true"] {
+	border-color: var(--launchy-green);
+}
+.launchy-regen {
+	margin-top: 8px;
+	color: var(--launchy-forest);
+}
+
+.launchy-actions {
+	display: flex;
+	justify-content: space-between;
+	gap: 10px;
+	margin-top: 18px;
+}
+
+.launchy-busy {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	background: var(--launchy-paper);
+	border: 1px solid var(--launchy-grey);
+	border-radius: 6px;
+	padding: 10px 14px;
+	margin: 12px 0;
+}
+.launchy-spinner {
+	width: 16px;
+	height: 16px;
+	border: 2px solid var(--launchy-grey);
+	border-top-color: var(--launchy-green);
+	border-radius: 50%;
+	animation: launchy-spin 0.8s linear infinite;
+}
+@keyframes launchy-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.launchy-error {
+	background: #fcf0f1;
+	border: 1px solid #d63638;
+	border-radius: 6px;
+	padding: 10px 14px;
+	margin: 12px 0;
+	color: #8a1f21;
+}
+
+.launchy-empty {
+	color: #6b7280;
+}
+.launchy-done h2 {
+	color: var(--launchy-forest);
+}

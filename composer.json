@@ -1,0 +1,17 @@
+{
+	"name": "mikebal/launchy-illustrator",
+	"description": "AI media director for the Leading Product newsletter — scans a draft, plans media placements, generates on-brand Launchy illustrations, and places them. Built on the WordPress Abilities API, AI Client, and Interactivity API.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.4"
+	},
+	"suggest": {
+		"wordpress/wp-ai-client": "Provider-agnostic AI client used for the editorial text pass when present (bundled in WordPress 7.0+)."
+	},
+	"autoload": {
+		"psr-4": {
+			"Launchy_Illustrator\\": "includes/"
+		}
+	}
+}

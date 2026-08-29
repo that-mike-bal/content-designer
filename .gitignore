@@ -1,0 +1,15 @@
+# macOS / iCloud
+.DS_Store
+Icon?
+._*
+
+# Secrets — never commit API keys
+*.key
+.env
+.env.*
+wp-config.php
+
+# Build / dependency output
+vendor/
+node_modules/
+*.zip
