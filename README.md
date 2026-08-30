@@ -38,7 +38,22 @@ style prompt that overrides the preset, planner guidance, and reference images.
 
 ## Usage
 
-**Tools → Illustrate.** Pick a draft, scan it, review the planned placements, generate, and place.
+Two surfaces, one pipeline.
+
+**In the post editor.** Open the **Illustrate** sidebar and scan the post you are writing. The
+structural read lands immediately, placements follow when the editorial pass returns, and images
+appear one at a time — keep or reject each as it arrives, while the rest are still rendering.
+
+Scanning sends the editor's current content, so unsaved edits are included and nothing needs
+saving first. Kept images are inserted with `insertBlocks`, which means the post is never rewritten
+underneath you and every image is its own undo step. Anchors are pinned to block clientIds right
+after the scan, so you can keep writing during a run without images landing in the wrong place.
+
+**Tools → Illustrate.** Pick a draft from a list and run the same pipeline. This surface writes to
+`post_content` server-side, so use it when the post is not already open in the editor.
+
+The panel appears on post types supporting both `editor` and `thumbnail` (the hero sets the
+featured image). Filter `launchy_illustrator_editor_post_types` to change that.
 
 ## Style presets
 
@@ -60,6 +75,33 @@ separately; its activation hook selects the `launchy` preset unless a custom sty
 New media types extend `Media_Types\Media_Type` and register on the
 `launchy_illustrator_register_media_types` action. The planner, admin UI, REST routes, and
 abilities all pick them up automatically. See `examples/example-diagram-media-type.php`.
+
+### Anchors
+
+A placement carries two positions, and they are not interchangeable:
+
+| Field | Meaning | Used by |
+| --- | --- | --- |
+| `anchor_index` | Raw `parse_blocks()` offset | `Media_Placer` (Tools screen) |
+| `anchor_ordinal` | Position among blocks the scan kept | The editor panel |
+
+They differ because `parse_blocks()` emits a null-name freeform block for the whitespace between
+every pair of real blocks, and the editor never shows those. Three authored blocks parse to five
+entries. Handing `anchor_index` to `insertBlocks()` would place images at roughly double their
+intended position. `tests/anchor-mapping.php` locks this down.
+
+## Tests
+
+There is no PHPUnit harness. The checks under `tests/` are plain scripts that run against a real
+WordPress via WP-CLI, which is enough to cover the logic where a silent error would be expensive:
+
+```
+wp eval-file wp-content/plugins/launchy-illustrator/tests/anchor-mapping.php
+wp eval-file wp-content/plugins/launchy-illustrator/tests/rest-outline.php
+wp eval-file wp-content/plugins/launchy-illustrator/tests/rest-discard.php
+```
+
+Each prints one line per assertion and exits non-zero on failure. None of them spend an AI call.
 
 ## Abilities
 

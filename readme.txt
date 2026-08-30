@@ -2,9 +2,9 @@
 Contributors: mikebal
 Tags: ai, images, illustration, gemini, editorial
 Requires at least: 6.7
-Tested up to: 6.8
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ Built on modern WordPress engineering primitives:
   (`wp_ai_client_prompt()`) when available, falling back to a direct Gemini call.
 * **Interactivity API** — the Tools → Illustrate screen is a server-rendered,
   directive-driven app with no custom build step.
+* **Block editor SlotFill** — the Illustrate sidebar runs the same pipeline from
+  inside the post editor, inserting images through the editor's own data stores
+  so unsaved work survives and every image is its own undo step.
 
 **Extensible by design.** Illustrations are just the first media type. Implement
 `Launchy_Illustrator\Media_Types\Media_Type` and register it on the
@@ -49,9 +52,24 @@ automatically. See `examples/example-diagram-media-type.php`.
    `LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY` in `wp-config.php` — see
    `wp-config-sample.php`).
 2. Pick a style preset (or write a custom style prompt that overrides it).
-3. Tools → Illustrate → pick a draft and go.
+3. Illustrate a post either way:
+   * **In the post editor** — open the **Illustrate** sidebar and scan the post
+     you are writing. Nothing needs to be saved first.
+   * **Tools → Illustrate** — pick a draft from a list and run the same pipeline.
 
 == Changelog ==
+
+= 1.1.0 =
+* New: an **Illustrate** sidebar in the post editor. Scan the post you are
+  editing, watch the plan build, and keep or reject each image as it arrives.
+* Scanning now reads the editor's current content, so unsaved edits are included.
+* Kept images are inserted through the block editor rather than by rewriting the
+  post server-side: unsaved work survives and each image is a separate undo step.
+* New REST routes: `launchy/v1/outline` (structural read, no AI call) and
+  `launchy/v1/discard` (clean up rejected variations).
+* Placements now carry `anchor_ordinal` alongside `anchor_index`. Code filtering
+  `launchy_illustrator_placement_plan` will see the new field; `anchor_index` is
+  unchanged.
 
 = 1.0.0 =
 * Initial release: draft scanning, AI placement planning, Gemini image
