@@ -57,6 +57,7 @@ final class Plugin {
 		if ( is_admin() ) {
 			new Settings();
 			new Admin\Page();
+			new Admin\Editor_Panel();
 		}
 	}
 
