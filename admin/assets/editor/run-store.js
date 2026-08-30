@@ -347,12 +347,38 @@
 	}
 
 	/**
+	 * Everything generated that is not in the document.
+	 *
+	 * Explicit rejections are only part of it. Images that were generated but
+	 * never reviewed — the normal case when a run is cancelled, or finished
+	 * without opening the modal — are just as superseded, and would otherwise
+	 * be left orphaned in the media library.
+	 *
+	 * @return {Array} Attachment ids.
+	 */
+	function supersededIds() {
+		const ids = state.discard.slice();
+
+		Object.keys( state.results ).forEach( function ( placementId ) {
+			( state.results[ placementId ] || [] ).forEach( function ( shot ) {
+				const id = Number( shot.attachment_id );
+
+				if ( state.chosen[ placementId ] !== id && ids.indexOf( id ) === -1 ) {
+					ids.push( id );
+				}
+			} );
+		} );
+
+		return ids;
+	}
+
+	/**
 	 * Send everything superseded to the server and clear the stored plan.
 	 *
 	 * @param {boolean} clearPlan Whether to drop the stored plan meta.
 	 */
 	async function flushDiscard( clearPlan ) {
-		const ids = state.discard.slice();
+		const ids = supersededIds();
 
 		if ( ! ids.length && ! clearPlan ) {
 			return;
