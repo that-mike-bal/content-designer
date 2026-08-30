@@ -295,11 +295,17 @@ class REST_Controller {
 			return new WP_Error( 'launchy_no_scene', __( 'Placement has no scene description.', 'launchy-illustrator' ), array( 'status' => 400 ) );
 		}
 
+		$anchor = absint( $raw['anchor_index'] ?? 0 );
+
 		return array(
 			'id'           => sanitize_key( $raw['id'] ?? 'p0' ),
 			'media_type'   => $type->get_slug(),
 			'role'         => $role,
-			'anchor_index' => absint( $raw['anchor_index'] ?? 0 ),
+			'anchor_index' => $anchor,
+			// Older clients and plans stored before the editor surface existed
+			// have no ordinal; falling back to the raw index keeps them working
+			// on classic content, where the two agree.
+			'anchor_ordinal' => isset( $raw['anchor_ordinal'] ) ? absint( $raw['anchor_ordinal'] ) : $anchor,
 			'aspect_ratio' => $ratio,
 			'resolution'   => in_array( $raw['resolution'] ?? '', array( '512', '1K', '2K', '4K' ), true ) ? $raw['resolution'] : $roles[ $role ]['resolution'],
 			'scene'        => $scene,

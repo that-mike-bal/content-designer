@@ -235,6 +235,8 @@ PROMPT;
 				'media_type'   => $slug,
 				'role'         => $role,
 				'anchor_index' => $anchor,
+				// Editor-resolvable twin of anchor_index. See Draft_Scanner::anchor_ordinal().
+				'anchor_ordinal' => Draft_Scanner::anchor_ordinal( $scan, $anchor ),
 				'aspect_ratio' => $ratio,
 				'resolution'   => $roles[ $role ]['resolution'],
 				'job'          => in_array( $item['job'] ?? '', array( 'conceptualize', 'pace', 'both' ), true ) ? $item['job'] : 'conceptualize',

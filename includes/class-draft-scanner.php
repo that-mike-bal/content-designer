@@ -40,7 +40,7 @@ class Draft_Scanner {
 	 * Scan a post into an outline.
 	 *
 	 * @param \WP_Post $post Post object.
-	 * @return array {is_blocks, total_words, outline: [{index, type, heading, level, words, is_visual_break, excerpt}]}
+	 * @return array {is_blocks, total_words, outline: [{index, ordinal, type, heading, level, words, is_visual_break, excerpt}]}
 	 */
 	public function scan( \WP_Post $post ) {
 		return has_blocks( $post->post_content )
@@ -72,6 +72,7 @@ class Draft_Scanner {
 			$words = str_word_count( $text );
 			$entry = array(
 				'index'           => $i,
+				'ordinal'         => count( $outline ),
 				'type'            => $block['blockName'] ?: 'classic',
 				'heading'         => '',
 				'level'           => 0,
@@ -119,6 +120,7 @@ class Draft_Scanner {
 
 			$outline[] = array(
 				'index'           => $i,
+				'ordinal'         => count( $outline ),
 				'type'            => $heading ? 'heading' : 'paragraph',
 				'heading'         => $heading,
 				'level'           => $heading ? (int) $m[1] : 0,
@@ -147,6 +149,34 @@ class Draft_Scanner {
 			$text .= ' ' . self::block_text( $inner );
 		}
 		return $text;
+	}
+
+	/**
+	 * Client-resolvable position for an anchor.
+	 *
+	 * `index` is a raw parse_blocks() offset, and the parser emits a null-name
+	 * freeform block for the whitespace between every pair of real blocks. The
+	 * block editor never shows those, so its top-level block array is both
+	 * shorter and differently indexed. `ordinal` is the position among the
+	 * entries this scan kept — the same set the editor exposes — so it is the
+	 * anchor the editor can actually resolve.
+	 *
+	 * The planner's anchor can land on one of those skipped whitespace blocks,
+	 * so resolve to the first kept entry at or after it. That preserves the
+	 * documented "insert BEFORE this item" meaning.
+	 *
+	 * @param array $scan         Result of scan().
+	 * @param int   $anchor_index Raw anchor index.
+	 * @return int Ordinal, or the kept-entry count to mean "append at the end".
+	 */
+	public static function anchor_ordinal( array $scan, $anchor_index ) {
+		foreach ( $scan['outline'] as $entry ) {
+			if ( (int) $entry['index'] >= (int) $anchor_index ) {
+				return (int) $entry['ordinal'];
+			}
+		}
+
+		return count( $scan['outline'] );
 	}
 
 	/**
