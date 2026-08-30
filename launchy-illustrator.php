@@ -3,7 +3,7 @@
  * Plugin Name:       Launchy Illustrator
  * Plugin URI:        https://mikebal.com
  * Description:       AI media director for Leading Product. Scans a draft, plans ideal media placements, generates on-brand Launchy illustrations with Gemini ("Nano Banana"), and places them into the post. Built on the WordPress Abilities API, AI Client, and Interactivity API.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            Mike Bal
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'LAUNCHY_ILLUSTRATOR_VERSION', '1.0.0' );
+define( 'LAUNCHY_ILLUSTRATOR_VERSION', '1.1.0' );
 define( 'LAUNCHY_ILLUSTRATOR_FILE', __FILE__ );
 define( 'LAUNCHY_ILLUSTRATOR_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LAUNCHY_ILLUSTRATOR_URL', plugin_dir_url( __FILE__ ) );

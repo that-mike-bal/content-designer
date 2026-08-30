@@ -33,27 +33,48 @@ The API key is resolved in this order, first match wins (`Settings::api_key()`):
 Prefer the constant. It keeps the key out of the database, and therefore out of every backup
 and database export. See `wp-config-sample.php`.
 
-Remaining settings live at **Settings → Launchy Illustrator**: style preset, an optional custom
-style prompt that overrides the preset, planner guidance, and reference images.
+Remaining settings live at **Settings → Launchy Illustrator**: which style to use, model names,
+and how many variations to generate. Art direction itself lives in styles (below).
 
 ## Usage
 
 **Tools → Illustrate.** Pick a draft, scan it, review the planned placements, generate, and place.
 
-## Style presets
+## Styles
 
-Style is entirely settings-driven. Seven presets ship built in — clean editorial (default),
-claymation, paper-cut, whiteboard, retro, modern-tech, and watercolor-storybook. A custom style
-prompt overrides whichever preset is selected, and presets can carry reference images.
+A style is one named bundle of art direction: a **prompt** (the master style block prepended to
+every image), **planner guidance** (what kind of scenes suit it), and **reference images** that keep
+characters and palette consistent.
 
-Add your own through the `launchy_illustrator_style_presets` filter. `launchy-style-preset.php`
-is a working example — the "Launchy (Leading Product)" preset.
+Seven ship built in — clean editorial (default), claymation, paper-cut, whiteboard, retro,
+modern-tech, and watercolor-storybook.
+
+### Making your own
+
+**Settings → Launchy Illustrator → Your styles.** Pick any existing look, hit *Duplicate to my
+styles*, and edit it — the built-ins are starting points, not fixed choices. Reference images come
+from the media library picker; a style duplicated from a preset keeps that preset's references
+(which may be URLs) and lets you add attachments alongside them.
+
+Saved styles are stored in the `launchy_illustrator_user_styles` option and merged into the
+registry through the same filter plugin presets use, so nothing downstream distinguishes them from
+a built-in.
+
+### Shipping a style in code
+
+Add one through the `launchy_illustrator_style_presets` filter. `launchy-style-preset.php` is a
+working example — the "Launchy (Leading Product)" preset.
 
 It sits at the plugin root rather than in `examples/` on purpose: WordPress scans one level into
 each plugin directory, so a second file with a plugin header there registers as its own
-activatable plugin. That lets both ship through a single GitHub Deployment pointed at
-`/wp-content/plugins/launchy-illustrator`. Activate **Launchy Illustrator — Launchy Style Preset**
-separately; its activation hook selects the `launchy` preset unless a custom style prompt is set.
+activatable plugin.
+
+### Upgrading from 1.0.0
+
+1.0.0 had three global override fields that replaced parts of the selected preset. Those are gone.
+On first admin load after upgrading, any values you had are snapshotted — override where set,
+preset where not — into a saved style called **My style**, which is then selected. The effective
+output does not change.
 
 ## Extending
 

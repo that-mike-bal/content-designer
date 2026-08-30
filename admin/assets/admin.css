@@ -209,3 +209,48 @@
 .launchy-done h2 {
 	color: var(--launchy-forest);
 }
+
+/* Style editor: reference-image strip. */
+.launchy-refs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.launchy-ref {
+	position: relative;
+	width: 80px;
+	height: 80px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	overflow: hidden;
+	background: #f0f0f1;
+}
+
+.launchy-ref img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.launchy-ref-remove {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 20px;
+	height: 20px;
+	line-height: 1;
+	padding: 0;
+	border: 0;
+	cursor: pointer;
+	color: #fff;
+	background: rgba( 0, 0, 0, 0.6 );
+	font-size: 14px;
+}
+
+.launchy-ref-remove:hover,
+.launchy-ref-remove:focus {
+	background: #d63638;
+}

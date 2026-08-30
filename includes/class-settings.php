@@ -71,6 +71,18 @@ class Settings {
 	}
 
 	/**
+	 * Write one setting, leaving the rest untouched.
+	 *
+	 * @param string $key   Setting key.
+	 * @param mixed  $value New value.
+	 */
+	public static function update( $key, $value ) {
+		$opts         = wp_parse_args( (array) get_option( self::OPTION, array() ), self::defaults() );
+		$opts[ $key ] = $value;
+		update_option( self::OPTION, $opts );
+	}
+
+	/**
 	 * Resolve the Gemini API key. Constants win over the stored option so the
 	 * key can live in wp-config.php instead of the database.
 	 *
@@ -128,9 +140,6 @@ class Settings {
 			'image_model'       => array( __( 'Image model', 'launchy-illustrator' ), 'text', __( 'Default is Nano Banana (gemini-2.5-flash-image).', 'launchy-illustrator' ) ),
 			'use_wp_ai_client'  => array( __( 'Prefer the WordPress AI Client for text when available', 'launchy-illustrator' ), 'checkbox', __( 'Image generation always calls Gemini directly so reference images and aspect ratios are honored.', 'launchy-illustrator' ) ),
 			'style_preset'      => array( __( 'Style preset', 'launchy-illustrator' ), 'select', __( 'Pick a ready-made look. Plugins can add more presets (e.g. a brand mascot preset).', 'launchy-illustrator' ) ),
-			'style_prompt'      => array( __( 'Custom style prompt (overrides preset)', 'launchy-illustrator' ), 'textarea', __( 'Optional. Your own art-direction block prepended to every image prompt — illustration style, palette, recurring character/mascot. When filled in, it replaces the selected preset.', 'launchy-illustrator' ) ),
-			'planner_guidance'  => array( __( 'Custom planner guidance (overrides preset)', 'launchy-illustrator' ), 'textarea', __( 'Optional. Tells the editorial planner what kind of scenes suit your style (e.g. describe your mascot and how it should act out concepts).', 'launchy-illustrator' ) ),
-			'reference_images'  => array( __( 'Style/character reference images', 'launchy-illustrator' ), 'textarea', __( 'Optional. One URL or attachment ID per line, passed to the image model to keep your character or style consistent across generations.', 'launchy-illustrator' ) ),
 			'hero_variations'   => array( __( 'Variations for hero images', 'launchy-illustrator' ), 'number', '' ),
 			'inline_variations' => array( __( 'Variations for other images', 'launchy-illustrator' ), 'number', '' ),
 			'hero_in_content'   => array( __( 'Also insert the hero into the post body', 'launchy-illustrator' ), 'checkbox', __( 'The hero is always set as the featured image. Enable if your theme does not render featured images.', 'launchy-illustrator' ) ),
@@ -176,9 +185,11 @@ class Settings {
 		$preset               = sanitize_key( $input['style_preset'] ?? '' );
 		$out['style_preset']  = array_key_exists( $preset, Style_Presets::all() ) ? $preset : Style_Presets::DEFAULT_PRESET;
 
-		$out['style_prompt']      = sanitize_textarea_field( $input['style_prompt'] ?? '' );
-		$out['planner_guidance']  = sanitize_textarea_field( $input['planner_guidance'] ?? '' );
-		$out['reference_images']  = sanitize_textarea_field( $input['reference_images'] ?? '' );
+		// No longer rendered as fields — user styles replaced them. Preserve any
+		// legacy values so an old override keeps working until it is migrated.
+		$out['style_prompt']      = isset( $input['style_prompt'] ) ? sanitize_textarea_field( $input['style_prompt'] ) : $existing['style_prompt'];
+		$out['planner_guidance']  = isset( $input['planner_guidance'] ) ? sanitize_textarea_field( $input['planner_guidance'] ) : $existing['planner_guidance'];
+		$out['reference_images']  = isset( $input['reference_images'] ) ? sanitize_textarea_field( $input['reference_images'] ) : $existing['reference_images'];
 		$out['hero_variations']   = max( 1, min( 4, absint( $input['hero_variations'] ?? 2 ) ) );
 		$out['inline_variations'] = max( 1, min( 4, absint( $input['inline_variations'] ?? 1 ) ) );
 		$out['hero_in_content']   = ! empty( $input['hero_in_content'] );
@@ -250,6 +261,12 @@ class Settings {
 				submit_button();
 				?>
 			</form>
+			<?php
+			/**
+			 * Render extra UI below the settings form (the style editor).
+			 */
+			do_action( 'launchy_illustrator_after_settings_form' );
+			?>
 		</div>
 		<?php
 	}
