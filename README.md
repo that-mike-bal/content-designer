@@ -46,8 +46,14 @@ Style is entirely settings-driven. Seven presets ship built in — clean editori
 claymation, paper-cut, whiteboard, retro, modern-tech, and watercolor-storybook. A custom style
 prompt overrides whichever preset is selected, and presets can carry reference images.
 
-Add your own through the `launchy_illustrator_style_presets` filter. `examples/launchy-style-preset.php`
-is a working example — the "Launchy (Leading Product)" preset, packaged as its own small plugin.
+Add your own through the `launchy_illustrator_style_presets` filter. `launchy-style-preset.php`
+is a working example — the "Launchy (Leading Product)" preset.
+
+It sits at the plugin root rather than in `examples/` on purpose: WordPress scans one level into
+each plugin directory, so a second file with a plugin header there registers as its own
+activatable plugin. That lets both ship through a single GitHub Deployment pointed at
+`/wp-content/plugins/launchy-illustrator`. Activate **Launchy Illustrator — Launchy Style Preset**
+separately; its activation hook selects the `launchy` preset unless a custom style prompt is set.
 
 ## Extending
 
