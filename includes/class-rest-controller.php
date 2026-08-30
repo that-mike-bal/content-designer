@@ -24,6 +24,14 @@ class REST_Controller {
 	const NS = 'launchy/v1';
 
 	/**
+	 * Cap on submitted editor content, in bytes.
+	 *
+	 * Nothing here is stored, but parse_blocks() on an unbounded payload is a
+	 * cheap way to exhaust memory. Comfortably above any real post.
+	 */
+	const MAX_CONTENT_BYTES = 2097152;
+
+	/**
 	 * Register routes.
 	 */
 	public function register_routes() {
@@ -46,6 +54,27 @@ class REST_Controller {
 			),
 		);
 
+		// Deliberately unsanitized: this is block markup, and running it through
+		// a text sanitizer or kses would strip the HTML comment delimiters that
+		// *are* the block structure. It is parsed and never stored — see scan().
+		$content_arg = array(
+			'content' => array(
+				'type'     => 'string',
+				'required' => false,
+			),
+		);
+
+		register_rest_route(
+			self::NS,
+			'/outline',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'outline' ),
+				'permission_callback' => array( $this, 'can_edit_post' ),
+				'args'                => $post_id_arg + $content_arg,
+			)
+		);
+
 		register_rest_route(
 			self::NS,
 			'/scan',
@@ -53,7 +82,7 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'scan' ),
 				'permission_callback' => array( $this, 'can_edit_post' ),
-				'args'                => $post_id_arg,
+				'args'                => $post_id_arg + $content_arg,
 			)
 		);
 
@@ -147,6 +176,92 @@ class REST_Controller {
 	}
 
 	/**
+	 * Resolve which content to scan.
+	 *
+	 * The editor sends what is on screen, unsaved edits included, so a run
+	 * reflects the document the author is looking at rather than the last save.
+	 * The submitted content is parsed for structure and stripped to plain text
+	 * for the prompt; it is never written back, so no filtering pass is applied
+	 * (which would destroy the block delimiters anyway). Everything echoed to
+	 * the client is tag-stripped by Draft_Scanner.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @param \WP_Post         $post    The stored post.
+	 * @return \WP_Post|WP_Error The post to scan — a clone when content was sent.
+	 */
+	private function post_to_scan( WP_REST_Request $request, \WP_Post $post ) {
+		$content = $request->get_param( 'content' );
+		if ( null === $content ) {
+			return $post;
+		}
+
+		if ( strlen( (string) $content ) > self::MAX_CONTENT_BYTES ) {
+			return new WP_Error(
+				'launchy_content_too_large',
+				__( 'That draft is too large to scan.', 'launchy-illustrator' ),
+				array( 'status' => 413 )
+			);
+		}
+
+		$clone               = clone $post;
+		$clone->post_content = (string) $content;
+
+		return $clone;
+	}
+
+	/**
+	 * Structural read only — no AI call, so this returns immediately and gives
+	 * the editor something true to show while the editorial pass runs.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return array|WP_Error
+	 */
+	public function outline( WP_REST_Request $request ) {
+		$post = get_post( (int) $request['post_id'] );
+		if ( ! $post ) {
+			return new WP_Error( 'launchy_no_post', __( 'Post not found.', 'launchy-illustrator' ), array( 'status' => 404 ) );
+		}
+
+		$target = $this->post_to_scan( $request, $post );
+		if ( is_wp_error( $target ) ) {
+			return $target;
+		}
+
+		$scan = ( new Draft_Scanner() )->scan( $target );
+
+		if ( empty( $scan['outline'] ) ) {
+			return new WP_Error( 'launchy_empty_post', __( 'This draft has no content to scan yet.', 'launchy-illustrator' ), array( 'status' => 400 ) );
+		}
+
+		return array(
+			'post'        => array(
+				'id'    => $post->ID,
+				'title' => $post->post_title,
+			),
+			'total_words' => $scan['total_words'],
+			'block_count' => count( $scan['outline'] ),
+			'sections'    => $this->sections( $scan ),
+			'outline'     => $scan['outline'],
+		);
+	}
+
+	/**
+	 * Headings in the outline, for a human summary of what was read.
+	 *
+	 * @param array $scan Scan result.
+	 * @return array
+	 */
+	private function sections( array $scan ) {
+		$sections = array();
+		foreach ( $scan['outline'] as $entry ) {
+			if ( '' !== $entry['heading'] ) {
+				$sections[] = $entry['heading'];
+			}
+		}
+		return $sections;
+	}
+
+	/**
 	 * Scan a draft and produce the placement plan.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -158,15 +273,20 @@ class REST_Controller {
 			return new WP_Error( 'launchy_no_post', __( 'Post not found.', 'launchy-illustrator' ), array( 'status' => 404 ) );
 		}
 
+		$target = $this->post_to_scan( $request, $post );
+		if ( is_wp_error( $target ) ) {
+			return $target;
+		}
+
 		$scanner = new Draft_Scanner();
-		$scan    = $scanner->scan( $post );
+		$scan    = $scanner->scan( $target );
 
 		if ( empty( $scan['outline'] ) ) {
 			return new WP_Error( 'launchy_empty_post', __( 'This draft has no content to scan yet.', 'launchy-illustrator' ), array( 'status' => 400 ) );
 		}
 
 		$planner = new Placement_Planner();
-		$plan    = $planner->plan( $post, $scan );
+		$plan    = $planner->plan( $target, $scan );
 		if ( is_wp_error( $plan ) ) {
 			return $plan;
 		}
@@ -177,6 +297,7 @@ class REST_Controller {
 				'title' => $post->post_title,
 			),
 			'total_words' => $scan['total_words'],
+			'block_count' => count( $scan['outline'] ),
 			'plan'        => $plan,
 		);
 	}
