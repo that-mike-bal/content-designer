@@ -125,6 +125,28 @@ class REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::NS,
+			'/discard',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'discard' ),
+				'permission_callback' => array( $this, 'can_edit_post' ),
+				'args'                => $post_id_arg + array(
+					// No per-item type: a stray non-numeric id should be skipped,
+					// not fail the whole cleanup call. Media_Manager sanitizes.
+					'ids'        => array(
+						'type'    => 'array',
+						'default' => array(),
+					),
+					'clear_plan' => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -386,6 +408,43 @@ class REST_Controller {
 			'edit_link' => get_edit_post_link( $post->ID, 'raw' ),
 			'preview'   => get_preview_post_link( $post->ID ),
 		);
+	}
+
+	/**
+	 * Clean up generated media the editor decided against.
+	 *
+	 * The editor never calls /place — it inserts blocks through the editor's own
+	 * stores so unsaved work survives — so it needs its own way to do the tidying
+	 * /place does at the end of a Tools-screen run.
+	 *
+	 * Deletion is delegated to Media_Manager::discard(), which enforces both
+	 * guards that matter: a per-attachment delete_post capability check, and
+	 * provenance meta tying the attachment to this post. Nothing this plugin did
+	 * not generate is ever removed.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return array|WP_Error {discarded: int}.
+	 */
+	public function discard( WP_REST_Request $request ) {
+		$post = get_post( (int) $request['post_id'] );
+		if ( ! $post ) {
+			return new WP_Error( 'launchy_no_post', __( 'Post not found.', 'launchy-illustrator' ), array( 'status' => 404 ) );
+		}
+
+		$discarded = 0;
+
+		// Same policy as /place rather than a second one: when the setting is
+		// off, variations are kept deliberately.
+		if ( Settings::get( 'cleanup_variants' ) ) {
+			$manager   = new Media_Manager();
+			$discarded = $manager->discard( $post->ID, (array) $request['ids'] );
+		}
+
+		if ( $request['clear_plan'] ) {
+			delete_post_meta( $post->ID, Placement_Planner::PLAN_META );
+		}
+
+		return array( 'discarded' => $discarded );
 	}
 
 	/**
