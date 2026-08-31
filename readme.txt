@@ -65,6 +65,9 @@ automatically. See `examples/example-diagram-media-type.php`.
 * Scanning now reads the editor's current content, so unsaved edits are included.
 * Kept images are inserted through the block editor rather than by rewriting the
   post server-side: unsaved work survives and each image is a separate undo step.
+* Placement labels now name the heading or opening words the image lands above
+  instead of an internal block number, and correctly describe anchors that fall
+  between blocks. Affects both the editor sidebar and Tools -> Illustrate.
 * New REST routes: `launchy/v1/outline` (structural read, no AI call) and
   `launchy/v1/discard` (clean up rejected variations).
 * Placements now carry `anchor_ordinal` alongside `anchor_index`. Code filtering

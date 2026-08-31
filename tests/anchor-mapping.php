@@ -81,6 +81,49 @@ launchy_is( 'anchor 4 (last block) resolves to ordinal 2', 2, Draft_Scanner::anc
 launchy_is( 'anchor past the end means append', 3, Draft_Scanner::anchor_ordinal( $scan, 99 ) );
 
 // ---------------------------------------------------------------------------
+// Labels describe where the image actually lands, and never a block number.
+// ---------------------------------------------------------------------------
+launchy_is( 'anchor 0 reads as the top of the post', 'Top of post', Draft_Scanner::anchor_label( $scan, 0 ) );
+launchy_is( 'an anchor on a heading names that heading', 'Before “Two”', Draft_Scanner::anchor_label( $scan, 2 ) );
+launchy_is(
+	'an anchor on a skipped whitespace block still names the heading it precedes',
+	'Before “Two”',
+	Draft_Scanner::anchor_label( $scan, 1 )
+);
+launchy_is(
+	'a paragraph inside a section names the section',
+	'In “Two”',
+	Draft_Scanner::anchor_label( $scan, 4 )
+);
+launchy_is( 'an anchor past the end reads as the end', 'At the end of the post', Draft_Scanner::anchor_label( $scan, 99 ) );
+launchy_is(
+	'no label mentions a block number',
+	false,
+	(bool) preg_match( '/block \\d/i', implode( ' ', array_map( static function ( $i ) use ( $scan ) {
+		return Draft_Scanner::anchor_label( $scan, $i );
+	}, range( 0, 6 ) ) ) )
+);
+
+// A textless block before any heading has nothing to quote.
+$img      = "<!-- wp:paragraph -->\n<p>Intro.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:image -->\n<figure class=\"wp-block-image\"><img src=\"x.png\" alt=\"\"/></figure>\n<!-- /wp:image -->";
+$img_post = new WP_Post( (object) array( 'post_content' => $img, 'ID' => 0 ) );
+$img_scan = $scanner->scan( $img_post );
+
+launchy_is( 'a textless block is named, not quoted empty', 'Before the image', Draft_Scanner::anchor_label( $img_scan, 1 ) );
+launchy_is( 'no label is an empty pair of quotes', false, false !== strpos( Draft_Scanner::anchor_label( $img_scan, 1 ), '“”' ) );
+
+// A paragraph before any heading is described by its opening words.
+$lead      = "<!-- wp:paragraph -->\n<p>Opening paragraph.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Second paragraph carries the anchor and runs on well past the trim point.</p>\n<!-- /wp:paragraph -->";
+$lead_post = new WP_Post( (object) array( 'post_content' => $lead, 'ID' => 0 ) );
+$lead_scan = $scanner->scan( $lead_post );
+
+launchy_is(
+	'a paragraph with no preceding heading is named by its opening words',
+	'Before “Second paragraph carries the anchor and…”',
+	Draft_Scanner::anchor_label( $lead_scan, 2 )
+);
+
+// ---------------------------------------------------------------------------
 // A leading non-empty classic chunk is kept and owns ordinal 0.
 // ---------------------------------------------------------------------------
 $mixed      = "<p>Legacy intro paragraph.</p>\n\n" . $block( 'heading', '<h2>Section</h2>' );

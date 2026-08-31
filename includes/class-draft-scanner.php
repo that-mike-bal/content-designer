@@ -180,35 +180,73 @@ class Draft_Scanner {
 	}
 
 	/**
-	 * Human label for an anchor index ("Before §‘Heading’" / "block 12").
+	 * Human label for where an image will land.
+	 *
+	 * Describes the block the image is inserted BEFORE — resolved with the same
+	 * first-kept-entry-at-or-after rule as anchor_ordinal(), so the label always
+	 * agrees with the actual insertion point.
+	 *
+	 * Deliberately names text rather than block numbers. The only index the
+	 * planner produces is a raw parse_blocks() offset, which counts whitespace
+	 * blocks nobody can see; showing it in the editor, where the author can
+	 * count blocks themselves, invites them to trust a number that will not
+	 * match. A heading or an opening phrase is both truthful and easier to place.
 	 *
 	 * @param array $scan         Result of scan().
 	 * @param int   $anchor_index Anchor.
 	 * @return string
 	 */
 	public static function anchor_label( array $scan, $anchor_index ) {
-		$section = '';
+		$anchor_index = (int) $anchor_index;
+		$target       = null;
+		$section      = '';
+
 		foreach ( $scan['outline'] as $entry ) {
-			if ( $entry['index'] > $anchor_index ) {
+			if ( (int) $entry['index'] >= $anchor_index ) {
+				$target = $entry;
 				break;
 			}
-			if ( $entry['heading'] ) {
+
+			// Headings passed on the way are the section the anchor sits in.
+			if ( '' !== $entry['heading'] ) {
 				$section = $entry['heading'];
-			}
-			if ( $entry['index'] === $anchor_index && $entry['heading'] ) {
-				/* translators: %s: heading text */
-				return sprintf( __( 'Before “%s”', 'launchy-illustrator' ), $entry['heading'] );
 			}
 		}
 
-		if ( 0 === (int) $anchor_index ) {
+		if ( null === $target ) {
+			return __( 'At the end of the post', 'launchy-illustrator' );
+		}
+
+		if ( 0 === (int) $target['ordinal'] ) {
 			return __( 'Top of post', 'launchy-illustrator' );
 		}
 
-		return $section
-			/* translators: 1: section heading, 2: block index */
-			? sprintf( __( 'In “%1$s” (block %2$d)', 'launchy-illustrator' ), $section, $anchor_index )
-			/* translators: %d: block index */
-			: sprintf( __( 'Before block %d', 'launchy-illustrator' ), $anchor_index );
+		if ( '' !== $target['heading'] ) {
+			/* translators: %s: heading text */
+			return sprintf( __( 'Before “%s”', 'launchy-illustrator' ), $target['heading'] );
+		}
+
+		if ( '' !== $section ) {
+			/* translators: %s: section heading */
+			return sprintf( __( 'In “%s”', 'launchy-illustrator' ), $section );
+		}
+
+		$excerpt = trim( (string) $target['excerpt'] );
+
+		if ( '' !== $excerpt ) {
+			/* translators: %s: opening words of the block the image sits above */
+			return sprintf( __( 'Before “%s”', 'launchy-illustrator' ), wp_trim_words( $excerpt, 6, '…' ) );
+		}
+
+		// Textless blocks — an image, a separator, a spacer — have nothing to
+		// quote. Name the block instead of rendering an empty pair of quotes.
+		$type = trim( str_replace( array( 'core/', '-' ), array( '', ' ' ), (string) $target['type'] ) );
+
+		if ( '' === $type || 'classic' === $type ) {
+			return __( 'Near the top of the post', 'launchy-illustrator' );
+		}
+
+		/* translators: %s: block type, e.g. "image" or "separator" */
+		return sprintf( __( 'Before the %s', 'launchy-illustrator' ), $type );
 	}
 }
