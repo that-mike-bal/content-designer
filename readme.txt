@@ -2,9 +2,9 @@
 Contributors: mikebal
 Tags: ai, images, illustration, gemini, editorial
 Requires at least: 6.7
-Tested up to: 6.8
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,10 +48,22 @@ automatically. See `examples/example-diagram-media-type.php`.
 1. Settings → Launchy Illustrator → add your Gemini API key (or define
    `LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY` in `wp-config.php` — see
    `wp-config-sample.php`).
-2. Pick a style preset (or write a custom style prompt that overrides it).
+2. Pick a style — or duplicate one under "Your styles" and make it your own.
 3. Tools → Illustrate → pick a draft and go.
 
 == Changelog ==
+
+= 1.1.0 =
+* New: create and save your own styles in the admin. A style bundles art
+  direction, planner guidance, and reference images, and behaves exactly like a
+  built-in preset everywhere it is used.
+* New: duplicate any style — built-ins included — to use it as a starting point.
+* New: reference images are chosen from the media library instead of typed as
+  URLs or attachment IDs.
+* Changed: the three global override fields (custom style prompt, planner
+  guidance, reference images) are gone from Settings. Existing values are
+  migrated automatically into a saved style named "My style" on first admin
+  load, preserving the output you were already getting.
 
 = 1.0.0 =
 * Initial release: draft scanning, AI placement planning, Gemini image
