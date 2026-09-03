@@ -51,7 +51,7 @@ automatically. See `examples/example-diagram-media-type.php`.
 1. Settings → Launchy Illustrator → add your Gemini API key (or define
    `LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY` in `wp-config.php` — see
    `wp-config-sample.php`).
-2. Pick a style preset (or write a custom style prompt that overrides it).
+2. Pick a style — or duplicate one under "Your styles" and make it your own.
 3. Illustrate a post either way:
    * **In the post editor** — open the **Illustrate** sidebar and scan the post
      you are writing. Nothing needs to be saved first.
@@ -62,6 +62,12 @@ automatically. See `examples/example-diagram-media-type.php`.
 = 1.1.0 =
 * New: an **Illustrate** sidebar in the post editor. Scan the post you are
   editing, watch the plan build, and keep or reject each image as it arrives.
+* New: create and save your own styles in the admin. A style bundles art
+  direction, planner guidance, and reference images, and behaves exactly like a
+  built-in preset everywhere it is used.
+* New: duplicate any style — built-ins included — to use it as a starting point.
+* New: reference images are chosen from the media library instead of typed as
+  URLs or attachment IDs.
 * Scanning now reads the editor's current content, so unsaved edits are included.
 * Kept images are inserted through the block editor rather than by rewriting the
   post server-side: unsaved work survives and each image is a separate undo step.
@@ -73,6 +79,10 @@ automatically. See `examples/example-diagram-media-type.php`.
 * Placements now carry `anchor_ordinal` alongside `anchor_index`. Code filtering
   `launchy_illustrator_placement_plan` will see the new field; `anchor_index` is
   unchanged.
+* Changed: the three global override fields (custom style prompt, planner
+  guidance, reference images) are gone from Settings. Existing values are
+  migrated automatically into a saved style named "My style" on first admin
+  load, preserving the output you were already getting.
 
 = 1.0.0 =
 * Initial release: draft scanning, AI placement planning, Gemini image
