@@ -1,9 +1,9 @@
 /**
- * Launchy Illustrator — Interactivity API store.
+ * Content Designer — Interactivity API store.
  *
  * Drives the Tools → Illustrate screen: pick a draft, review the AI placement
  * plan, generate variations, choose finalists, place into the draft. All state
- * lives in the `launchy-illustrator` interactivity store; the server seeds the
+ * lives in the `content-designer` interactivity store; the server seeds the
  * initial state and REST root/nonce.
  *
  * Implementation notes:
@@ -17,7 +17,7 @@ import { store, getContext, getElement } from '@wordpress/interactivity';
 /**
  * REST helper. Throws with the server's message on any non-2xx response.
  *
- * @param {string} path Path under the launchy/v1 root, e.g. '/scan'.
+ * @param {string} path Path under the content-designer/v1 root, e.g. '/scan'.
  * @param {Object} body JSON body; omit for GET.
  * @return {Promise<any>} Parsed JSON.
  */
@@ -71,7 +71,7 @@ function* generateFor( item ) {
 	}
 }
 
-const { state, actions } = store( 'launchy-illustrator', {
+const { state, actions } = store( 'content-designer', {
 	state: {
 		// --- step flags (computed) ---
 		get isPick() {

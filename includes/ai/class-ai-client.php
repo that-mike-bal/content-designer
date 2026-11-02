@@ -10,12 +10,12 @@
  * reference images and exact aspect ratios, which the generic client does not
  * yet expose uniformly across providers.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator\AI;
+namespace Content_Designer\AI;
 
-use Launchy_Illustrator\Settings;
+use Content_Designer\Settings;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;

@@ -8,13 +8,13 @@
 ( function ( wp ) {
 	'use strict';
 
-	window.launchy = window.launchy || {};
+	window.contentDesigner = window.contentDesigner || {};
 
 	const { createElement: h, Fragment, useState, useEffect } = wp.element;
 	const { CheckboxControl, TextareaControl, Spinner } = wp.components;
 	const { __ } = wp.i18n;
 
-	const store = window.launchy.store;
+	const store = window.contentDesigner.store;
 
 	/**
 	 * Subscribe a component to run state.
@@ -47,28 +47,28 @@
 		const isChosen = !! run.chosen[ placement.id ];
 
 		if ( isChosen ) {
-			return h( 'span', { className: 'launchy-card__status is-placed' }, __( 'Placed', 'launchy-illustrator' ) );
+			return h( 'span', { className: 'content-designer-card__status is-placed' }, __( 'Placed', 'content-designer' ) );
 		}
 
 		if ( shots.length ) {
 			return h(
 				'span',
-				{ className: 'launchy-card__status is-ready' },
-				__( 'Ready to review', 'launchy-illustrator' )
+				{ className: 'content-designer-card__status is-ready' },
+				__( 'Ready to review', 'content-designer' )
 			);
 		}
 
 		if ( run.status === 'generating' && placement.approved ) {
 			return h(
 				'span',
-				{ className: 'launchy-card__status is-working' },
+				{ className: 'content-designer-card__status is-working' },
 				h( Spinner, null ),
-				__( 'Generating…', 'launchy-illustrator' )
+				__( 'Generating…', 'content-designer' )
 			);
 		}
 
 		if ( ! placement.approved ) {
-			return h( 'span', { className: 'launchy-card__status' }, __( 'Skipped', 'launchy-illustrator' ) );
+			return h( 'span', { className: 'content-designer-card__status' }, __( 'Skipped', 'content-designer' ) );
 		}
 
 		return null;
@@ -88,20 +88,20 @@
 			'li',
 			{
 				className:
-					'launchy-card' + ( placement.approved ? '' : ' is-skipped' ),
+					'content-designer-card' + ( placement.approved ? '' : ' is-skipped' ),
 			},
 			h(
 				'div',
-				{ className: 'launchy-card__head' },
-				h( 'span', { className: 'launchy-card__role' }, placement.role ),
-				h( 'span', { className: 'launchy-card__ratio' }, placement.aspect_ratio ),
+				{ className: 'content-designer-card__head' },
+				h( 'span', { className: 'content-designer-card__role' }, placement.role ),
+				h( 'span', { className: 'content-designer-card__ratio' }, placement.aspect_ratio ),
 				h( Status, { placement, run } )
 			),
-			h( 'p', { className: 'launchy-card__anchor' }, placement.anchor_label ),
+			h( 'p', { className: 'content-designer-card__anchor' }, placement.anchor_label ),
 			editable
 				? h( CheckboxControl, {
 						__nextHasNoMarginBottom: true,
-						label: __( 'Include this image', 'launchy-illustrator' ),
+						label: __( 'Include this image', 'content-designer' ),
 						checked: !! placement.approved,
 						onChange: function () {
 							store.toggleApproved( placement.id );
@@ -111,7 +111,7 @@
 			editable && placement.approved
 				? h( TextareaControl, {
 						__nextHasNoMarginBottom: true,
-						label: __( 'Scene', 'launchy-illustrator' ),
+						label: __( 'Scene', 'content-designer' ),
 						help: placement.rationale,
 						rows: 4,
 						value: placement.scene,
@@ -121,7 +121,7 @@
 				  } )
 				: null,
 			! editable
-				? h( 'p', { className: 'launchy-card__scene' }, placement.scene )
+				? h( 'p', { className: 'content-designer-card__scene' }, placement.scene )
 				: null
 		);
 	}
@@ -144,7 +144,7 @@
 			null,
 			h(
 				'ul',
-				{ className: 'launchy-cards' },
+				{ className: 'content-designer-cards' },
 				run.plan.map( function ( placement ) {
 					return h( Card, { key: placement.id, placement, run } );
 				} )
@@ -152,6 +152,6 @@
 		);
 	}
 
-	window.launchy.useRunState = useRunState;
-	window.launchy.PlacementCards = PlacementCards;
+	window.contentDesigner.useRunState = useRunState;
+	window.contentDesigner.PlacementCards = PlacementCards;
 } )( window.wp );

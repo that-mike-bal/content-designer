@@ -12,15 +12,15 @@
  * the scripts are plain classic scripts written against the `wp.*` globals with
  * a real dependency graph, rather than a bundled module tree.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator\Admin;
+namespace Content_Designer\Admin;
 
-use Launchy_Illustrator\Plugin;
-use Launchy_Illustrator\REST_Controller;
-use Launchy_Illustrator\Settings;
-use Launchy_Illustrator\Style_Presets;
+use Content_Designer\Plugin;
+use Content_Designer\REST_Controller;
+use Content_Designer\Settings;
+use Content_Designer\Style_Presets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Editor_Panel {
 
-	const HANDLE = 'launchy-illustrator-editor';
+	const HANDLE = 'content-designer-editor';
 
 	/**
 	 * Hook in.
@@ -61,7 +61,7 @@ class Editor_Panel {
 		 *
 		 * @param array $types Post type names.
 		 */
-		return (array) apply_filters( 'launchy_illustrator_editor_post_types', $types );
+		return (array) apply_filters( 'content_designer_editor_post_types', $types );
 	}
 
 	/**
@@ -101,8 +101,8 @@ class Editor_Panel {
 			return;
 		}
 
-		$base = LAUNCHY_ILLUSTRATOR_URL . 'admin/assets/editor/';
-		$ver  = LAUNCHY_ILLUSTRATOR_VERSION;
+		$base = CONTENT_DESIGNER_URL . 'admin/assets/editor/';
+		$ver  = CONTENT_DESIGNER_VERSION;
 
 		wp_enqueue_style( self::HANDLE, $base . 'editor.css', array( 'wp-components' ), $ver );
 
@@ -111,12 +111,12 @@ class Editor_Panel {
 		// a classic script.
 		foreach ( $this->scripts() as $handle => $script ) {
 			wp_register_script( $handle, $base . $script['file'], $script['deps'], $ver, true );
-			wp_set_script_translations( $handle, 'launchy-illustrator' );
+			wp_set_script_translations( $handle, 'content-designer' );
 		}
 
 		wp_add_inline_script(
-			'launchy-editor-insert',
-			'window.launchyIllustrator = ' . wp_json_encode( $this->bootstrap() ) . ';',
+			'content-designer-editor-insert',
+			'window.contentDesigner = ' . wp_json_encode( $this->bootstrap() ) . ';',
 			'before'
 		);
 
@@ -131,25 +131,25 @@ class Editor_Panel {
 	 */
 	private function scripts() {
 		return array(
-			'launchy-editor-insert' => array(
+			'content-designer-editor-insert' => array(
 				'file' => 'insert.js',
 				'deps' => array( 'wp-blocks', 'wp-data', 'wp-i18n' ),
 			),
-			'launchy-editor-store'  => array(
+			'content-designer-editor-store'  => array(
 				'file' => 'run-store.js',
-				'deps' => array( 'wp-api-fetch', 'wp-data', 'wp-i18n', 'launchy-editor-insert' ),
+				'deps' => array( 'wp-api-fetch', 'wp-data', 'wp-i18n', 'content-designer-editor-insert' ),
 			),
-			'launchy-editor-cards'  => array(
+			'content-designer-editor-cards'  => array(
 				'file' => 'placement-cards.js',
-				'deps' => array( 'wp-element', 'wp-components', 'wp-i18n', 'launchy-editor-store' ),
+				'deps' => array( 'wp-element', 'wp-components', 'wp-i18n', 'content-designer-editor-store' ),
 			),
-			'launchy-editor-modal'  => array(
+			'content-designer-editor-modal'  => array(
 				'file' => 'review-modal.js',
-				'deps' => array( 'wp-element', 'wp-components', 'wp-i18n', 'launchy-editor-store' ),
+				'deps' => array( 'wp-element', 'wp-components', 'wp-i18n', 'content-designer-editor-store' ),
 			),
 			self::HANDLE            => array(
 				'file' => 'index.js',
-				'deps' => array( 'wp-plugins', 'wp-editor', 'wp-element', 'wp-components', 'wp-i18n', 'wp-notices', 'launchy-editor-cards', 'launchy-editor-modal' ),
+				'deps' => array( 'wp-plugins', 'wp-editor', 'wp-element', 'wp-components', 'wp-i18n', 'wp-notices', 'content-designer-editor-cards', 'content-designer-editor-modal' ),
 			),
 		);
 	}
@@ -172,8 +172,8 @@ class Editor_Panel {
 		return array(
 			'namespace'     => REST_Controller::NS,
 			'hasApiKey'     => (bool) Settings::api_key(),
-			'styleLabel'    => $custom ? __( 'Custom style prompt', 'launchy-illustrator' ) : Style_Presets::current()['label'],
-			'settingsUrl'   => admin_url( 'options-general.php?page=launchy-illustrator-settings' ),
+			'styleLabel'    => $custom ? __( 'Custom style prompt', 'content-designer' ) : Style_Presets::current()['label'],
+			'settingsUrl'   => admin_url( 'options-general.php?page=content-designer-settings' ),
 			'heroInContent' => (bool) Settings::get( 'hero_in_content' ),
 			'mediaTypes'    => $media_types,
 		);

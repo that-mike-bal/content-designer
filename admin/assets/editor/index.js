@@ -13,15 +13,15 @@
 	const { PanelBody, Button, Notice, ExternalLink } = wp.components;
 	const { __ } = wp.i18n;
 
-	const store = window.launchy.store;
-	const useRunState = window.launchy.useRunState;
-	const PlacementCards = window.launchy.PlacementCards;
-	const ReviewModal = window.launchy.ReviewModal;
+	const store = window.contentDesigner.store;
+	const useRunState = window.contentDesigner.useRunState;
+	const PlacementCards = window.contentDesigner.PlacementCards;
+	const ReviewModal = window.contentDesigner.ReviewModal;
 
-	const config = window.launchyIllustrator || {};
+	const config = window.contentDesigner || {};
 
-	const NAME = 'launchy-illustrator';
-	const TITLE = __( 'Illustrate', 'launchy-illustrator' );
+	const NAME = 'content-designer';
+	const TITLE = __( 'Illustrate', 'content-designer' );
 
 	/**
 	 * Which control the run offers right now.
@@ -37,7 +37,7 @@
 			return h(
 				Button,
 				{ variant: 'secondary', onClick: store.cancel },
-				__( 'Cancel', 'launchy-illustrator' )
+				__( 'Cancel', 'content-designer' )
 			);
 		}
 
@@ -57,11 +57,11 @@
 						onClick: store.generateApproved,
 					},
 					count === 1
-						? __( 'Generate 1 image', 'launchy-illustrator' )
+						? __( 'Generate 1 image', 'content-designer' )
 						: // translators: %d: number of images to generate.
-						  wp.i18n.sprintf( __( 'Generate %d images', 'launchy-illustrator' ), count )
+						  wp.i18n.sprintf( __( 'Generate %d images', 'content-designer' ), count )
 				),
-				h( Button, { variant: 'tertiary', onClick: store.cancel }, __( 'Discard plan', 'launchy-illustrator' ) )
+				h( Button, { variant: 'tertiary', onClick: store.cancel }, __( 'Discard plan', 'content-designer' ) )
 			);
 		}
 
@@ -77,11 +77,11 @@
 							store.setModalOpen( true );
 						},
 					},
-					__( 'Review images', 'launchy-illustrator' )
+					__( 'Review images', 'content-designer' )
 				),
 				run.status === 'complete'
-					? h( Button, { variant: 'tertiary', onClick: store.finish }, __( 'Finish', 'launchy-illustrator' ) )
-					: h( Button, { variant: 'tertiary', isDestructive: true, onClick: store.cancel }, __( 'Cancel run', 'launchy-illustrator' ) )
+					? h( Button, { variant: 'tertiary', onClick: store.finish }, __( 'Finish', 'content-designer' ) )
+					: h( Button, { variant: 'tertiary', isDestructive: true, onClick: store.cancel }, __( 'Cancel run', 'content-designer' ) )
 			);
 		}
 
@@ -92,7 +92,7 @@
 				disabled: ! config.hasApiKey,
 				onClick: store.startRun,
 			},
-			__( 'Scan this post', 'launchy-illustrator' )
+			__( 'Scan this post', 'content-designer' )
 		);
 	}
 
@@ -109,35 +109,35 @@
 			null,
 			h(
 				PanelBody,
-				{ className: 'launchy-panel' },
+				{ className: 'content-designer-panel' },
 				! config.hasApiKey
 					? h(
 							Notice,
 							{ status: 'warning', isDismissible: false },
-							__( 'No image API key is configured yet, so nothing can be generated.', 'launchy-illustrator' ),
+							__( 'No image API key is configured yet, so nothing can be generated.', 'content-designer' ),
 							' ',
-							h( ExternalLink, { href: config.settingsUrl }, __( 'Add one in settings', 'launchy-illustrator' ) )
+							h( ExternalLink, { href: config.settingsUrl }, __( 'Add one in settings', 'content-designer' ) )
 					  )
 					: null,
 				h(
 					'p',
-					{ className: 'launchy-panel__style' },
-					__( 'Style:', 'launchy-illustrator' ),
+					{ className: 'content-designer-panel__style' },
+					__( 'Style:', 'content-designer' ),
 					' ',
 					h( 'strong', null, config.styleLabel ),
 					' · ',
-					h( ExternalLink, { href: config.settingsUrl }, __( 'Change', 'launchy-illustrator' ) )
+					h( ExternalLink, { href: config.settingsUrl }, __( 'Change', 'content-designer' ) )
 				),
 				h(
 					'p',
 					{
-						className: 'launchy-panel__log',
+						className: 'content-designer-panel__log',
 						'aria-live': 'polite',
 						role: 'status',
 					},
 					run.log
 				),
-				h( 'div', { className: 'launchy-panel__actions' }, h( Controls, { run } ) )
+				h( 'div', { className: 'content-designer-panel__actions' }, h( Controls, { run } ) )
 			),
 			h( PlacementCards, { run } ),
 			h( ReviewModal, { run } )

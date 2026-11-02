@@ -4,15 +4,15 @@
  *
  * A saved style has exactly the same shape as a built-in preset (label,
  * description, prompt, guidance, references) and is merged into the registry
- * through the same `launchy_illustrator_style_presets` filter third-party
+ * through the same `content_designer_style_presets` filter third-party
  * preset plugins use. Everything downstream — the picker, the Illustration
  * media type, settings validation — therefore treats user styles and built-ins
  * identically, with no special-casing.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator;
+namespace Content_Designer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,7 +24,7 @@ class User_Styles {
 	/**
 	 * Option holding all user styles, keyed by id.
 	 */
-	const OPTION = 'launchy_illustrator_user_styles';
+	const OPTION = 'content_designer_user_styles';
 
 	/**
 	 * Id prefix. Keeps user styles from ever colliding with a built-in or
@@ -37,7 +37,7 @@ class User_Styles {
 	 */
 	public function __construct() {
 		// Priority 20 so plugin-registered presets land first and can be duplicated.
-		add_filter( 'launchy_illustrator_style_presets', array( __CLASS__, 'merge' ), 20 );
+		add_filter( 'content_designer_style_presets', array( __CLASS__, 'merge' ), 20 );
 	}
 
 	/**
@@ -95,7 +95,7 @@ class User_Styles {
 		$all   = self::all();
 		$label = sanitize_text_field( $style['label'] ?? '' );
 		if ( '' === $label ) {
-			$label = __( 'Untitled style', 'launchy-illustrator' );
+			$label = __( 'Untitled style', 'content-designer' );
 		}
 
 		$id = self::is_custom( $id ) && isset( $all[ $id ] ) ? $id : self::unique_id( $label );
@@ -147,7 +147,7 @@ class User_Styles {
 			'',
 			array(
 				/* translators: %s: name of the style being copied. */
-				'label'       => sprintf( __( '%s (copy)', 'launchy-illustrator' ), $source['label'] ?? $source_id ),
+				'label'       => sprintf( __( '%s (copy)', 'content-designer' ), $source['label'] ?? $source_id ),
 				'description' => $source['description'] ?? '',
 				'prompt'      => $source['prompt'] ?? '',
 				'guidance'    => $source['guidance'] ?? '',
@@ -192,8 +192,8 @@ class User_Styles {
 		$id = self::save(
 			'',
 			array(
-				'label'       => __( 'My style', 'launchy-illustrator' ),
-				'description' => __( 'Migrated from your custom style settings.', 'launchy-illustrator' ),
+				'label'       => __( 'My style', 'content-designer' ),
+				'description' => __( 'Migrated from your custom style settings.', 'content-designer' ),
 				'prompt'      => $prompt,
 				'guidance'    => $guidance,
 				'references'  => $refs,
@@ -216,7 +216,7 @@ class User_Styles {
 	 */
 	public static function unique_id( $label ) {
 		// sanitize_title, not sanitize_key: the latter strips spaces entirely and
-		// would turn "Launchy (Leading Product)" into "launchyleadingproduct".
+		// would turn "Launchy (mikebal.com)" into "launchymikebalcom".
 		$base = sanitize_title( $label );
 		if ( '' === $base ) {
 			$base = 'style';

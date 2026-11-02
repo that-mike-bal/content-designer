@@ -1,20 +1,20 @@
 <?php
 /**
- * The style editor on Settings → Launchy Illustrator.
+ * The style editor on Settings → Content Designer.
  *
  * Renders below the main settings form (its own form, its own POST handlers)
  * so the Settings API keeps owning the simple fields while styles get the
  * richer editing they need — duplicate, rename, delete, and a media-library
  * picker for reference images.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator\Admin;
+namespace Content_Designer\Admin;
 
-use Launchy_Illustrator\Settings;
-use Launchy_Illustrator\Style_Presets;
-use Launchy_Illustrator\User_Styles;
+use Content_Designer\Settings;
+use Content_Designer\Style_Presets;
+use Content_Designer\User_Styles;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,17 +26,17 @@ class Styles_UI {
 	/**
 	 * Settings page slug (matches Settings::register_menu()).
 	 */
-	const PAGE = 'launchy-illustrator-settings';
+	const PAGE = 'content-designer-settings';
 
 	/**
 	 * Hook up rendering, assets, and form handlers.
 	 */
 	public function __construct() {
-		add_action( 'launchy_illustrator_after_settings_form', array( $this, 'render' ) );
+		add_action( 'content_designer_after_settings_form', array( $this, 'render' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
-		add_action( 'admin_post_launchy_save_style', array( $this, 'handle_save' ) );
-		add_action( 'admin_post_launchy_delete_style', array( $this, 'handle_delete' ) );
-		add_action( 'admin_post_launchy_duplicate_style', array( $this, 'handle_duplicate' ) );
+		add_action( 'admin_post_content_designer_save_style', array( $this, 'handle_save' ) );
+		add_action( 'admin_post_content_designer_delete_style', array( $this, 'handle_delete' ) );
+		add_action( 'admin_post_content_designer_duplicate_style', array( $this, 'handle_duplicate' ) );
 	}
 
 	/**
@@ -51,25 +51,25 @@ class Styles_UI {
 
 		wp_enqueue_media();
 		wp_enqueue_style(
-			'launchy-illustrator-admin',
-			LAUNCHY_ILLUSTRATOR_URL . 'admin/assets/admin.css',
+			'content-designer-admin',
+			CONTENT_DESIGNER_URL . 'admin/assets/admin.css',
 			array(),
-			LAUNCHY_ILLUSTRATOR_VERSION
+			CONTENT_DESIGNER_VERSION
 		);
 		wp_enqueue_script(
-			'launchy-illustrator-styles',
-			LAUNCHY_ILLUSTRATOR_URL . 'admin/assets/styles-admin.js',
+			'content-designer-styles',
+			CONTENT_DESIGNER_URL . 'admin/assets/styles-admin.js',
 			array(),
-			LAUNCHY_ILLUSTRATOR_VERSION,
+			CONTENT_DESIGNER_VERSION,
 			true
 		);
 		wp_localize_script(
-			'launchy-illustrator-styles',
-			'launchyStyles',
+			'content-designer-styles',
+			'contentDesignerStyles',
 			array(
-				'title'       => __( 'Choose reference images', 'launchy-illustrator' ),
-				'button'      => __( 'Use these references', 'launchy-illustrator' ),
-				'confirmText' => __( 'Delete this style? This cannot be undone.', 'launchy-illustrator' ),
+				'title'       => __( 'Choose reference images', 'content-designer' ),
+				'button'      => __( 'Use these references', 'content-designer' ),
+				'confirmText' => __( 'Delete this style? This cannot be undone.', 'content-designer' ),
 			)
 		);
 	}
@@ -120,18 +120,18 @@ class Styles_UI {
 		$this->notice();
 		?>
 		<hr class="wp-header-end" />
-		<h2><?php esc_html_e( 'Your styles', 'launchy-illustrator' ); ?></h2>
+		<h2><?php esc_html_e( 'Your styles', 'content-designer' ); ?></h2>
 		<p class="description">
-			<?php esc_html_e( 'A style bundles the art direction, the planner guidance, and the reference images that keep your characters consistent. Duplicate any built-in look to start from it, then edit freely.', 'launchy-illustrator' ); ?>
+			<?php esc_html_e( 'A style bundles the art direction, the planner guidance, and the reference images that keep your characters consistent. Duplicate any built-in look to start from it, then edit freely.', 'content-designer' ); ?>
 		</p>
 
 		<?php if ( $saved ) : ?>
 			<table class="widefat striped" style="max-width:60em;margin-bottom:1em;">
 				<thead>
 					<tr>
-						<th><?php esc_html_e( 'Style', 'launchy-illustrator' ); ?></th>
-						<th><?php esc_html_e( 'References', 'launchy-illustrator' ); ?></th>
-						<th><?php esc_html_e( 'Actions', 'launchy-illustrator' ); ?></th>
+						<th><?php esc_html_e( 'Style', 'content-designer' ); ?></th>
+						<th><?php esc_html_e( 'References', 'content-designer' ); ?></th>
+						<th><?php esc_html_e( 'Actions', 'content-designer' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -140,7 +140,7 @@ class Styles_UI {
 						<td>
 							<strong><?php echo esc_html( $item['label'] ); ?></strong>
 							<?php if ( $id === $current ) : ?>
-								<span class="dashicons dashicons-yes" title="<?php esc_attr_e( 'Currently selected', 'launchy-illustrator' ); ?>"></span>
+								<span class="dashicons dashicons-yes" title="<?php esc_attr_e( 'Currently selected', 'content-designer' ); ?>"></span>
 							<?php endif; ?>
 							<?php if ( ! empty( $item['description'] ) ) : ?>
 								<br /><span class="description"><?php echo esc_html( $item['description'] ); ?></span>
@@ -148,13 +148,13 @@ class Styles_UI {
 						</td>
 						<td><?php echo (int) count( (array) ( $item['references'] ?? array() ) ); ?></td>
 						<td>
-							<a href="<?php echo esc_url( add_query_arg( array( 'page' => self::PAGE, 'edit_style' => $id ), admin_url( 'options-general.php' ) ) ); ?>"><?php esc_html_e( 'Edit', 'launchy-illustrator' ); ?></a>
+							<a href="<?php echo esc_url( add_query_arg( array( 'page' => self::PAGE, 'edit_style' => $id ), admin_url( 'options-general.php' ) ) ); ?>"><?php esc_html_e( 'Edit', 'content-designer' ); ?></a>
 							|
 							<form method="post" action="<?php echo $action; // phpcs:ignore WordPress.Security.EscapeOutput ?>" style="display:inline">
-								<?php wp_nonce_field( 'launchy_style_' . $id ); ?>
-								<input type="hidden" name="action" value="launchy_delete_style" />
+								<?php wp_nonce_field( 'content_designer_style_' . $id ); ?>
+								<input type="hidden" name="action" value="content_designer_delete_style" />
 								<input type="hidden" name="style_id" value="<?php echo esc_attr( $id ); ?>" />
-								<button type="submit" class="button-link delete js-launchy-confirm"><?php esc_html_e( 'Delete', 'launchy-illustrator' ); ?></button>
+								<button type="submit" class="button-link delete js-content-designer-confirm"><?php esc_html_e( 'Delete', 'content-designer' ); ?></button>
 							</form>
 						</td>
 					</tr>
@@ -164,73 +164,73 @@ class Styles_UI {
 		<?php endif; ?>
 
 		<form method="post" action="<?php echo $action; // phpcs:ignore WordPress.Security.EscapeOutput ?>" style="margin-bottom:2em;">
-			<?php wp_nonce_field( 'launchy_duplicate_style' ); ?>
-			<input type="hidden" name="action" value="launchy_duplicate_style" />
-			<label for="launchy_duplicate_source"><?php esc_html_e( 'Start from an existing look:', 'launchy-illustrator' ); ?></label>
-			<select id="launchy_duplicate_source" name="source_id">
+			<?php wp_nonce_field( 'content_designer_duplicate_style' ); ?>
+			<input type="hidden" name="action" value="content_designer_duplicate_style" />
+			<label for="content_designer_duplicate_source"><?php esc_html_e( 'Start from an existing look:', 'content-designer' ); ?></label>
+			<select id="content_designer_duplicate_source" name="source_id">
 				<?php foreach ( $presets as $preset_id => $preset ) : ?>
 					<option value="<?php echo esc_attr( $preset_id ); ?>" <?php selected( $current, $preset_id ); ?>>
 						<?php echo esc_html( $preset['label'] ); ?>
 					</option>
 				<?php endforeach; ?>
 			</select>
-			<button type="submit" class="button"><?php esc_html_e( 'Duplicate to my styles', 'launchy-illustrator' ); ?></button>
+			<button type="submit" class="button"><?php esc_html_e( 'Duplicate to my styles', 'content-designer' ); ?></button>
 		</form>
 
-		<h3><?php echo $editing_id ? esc_html__( 'Edit style', 'launchy-illustrator' ) : esc_html__( 'New style', 'launchy-illustrator' ); ?></h3>
+		<h3><?php echo $editing_id ? esc_html__( 'Edit style', 'content-designer' ) : esc_html__( 'New style', 'content-designer' ); ?></h3>
 		<form method="post" action="<?php echo $action; // phpcs:ignore WordPress.Security.EscapeOutput ?>">
-			<?php wp_nonce_field( 'launchy_style_' . $editing_id ); ?>
-			<input type="hidden" name="action" value="launchy_save_style" />
+			<?php wp_nonce_field( 'content_designer_style_' . $editing_id ); ?>
+			<input type="hidden" name="action" value="content_designer_save_style" />
 			<input type="hidden" name="style_id" value="<?php echo esc_attr( $editing_id ); ?>" />
 
 			<table class="form-table" role="presentation">
 				<tr>
-					<th scope="row"><label for="launchy_style_label"><?php esc_html_e( 'Name', 'launchy-illustrator' ); ?></label></th>
-					<td><input type="text" id="launchy_style_label" name="label" class="regular-text" value="<?php echo esc_attr( $style['label'] ); ?>" required /></td>
+					<th scope="row"><label for="content_designer_style_label"><?php esc_html_e( 'Name', 'content-designer' ); ?></label></th>
+					<td><input type="text" id="content_designer_style_label" name="label" class="regular-text" value="<?php echo esc_attr( $style['label'] ); ?>" required /></td>
 				</tr>
 				<tr>
-					<th scope="row"><label for="launchy_style_description"><?php esc_html_e( 'Description', 'launchy-illustrator' ); ?></label></th>
+					<th scope="row"><label for="content_designer_style_description"><?php esc_html_e( 'Description', 'content-designer' ); ?></label></th>
 					<td>
-						<input type="text" id="launchy_style_description" name="description" class="regular-text" value="<?php echo esc_attr( $style['description'] ); ?>" />
-						<p class="description"><?php esc_html_e( 'Shown next to the name in the style picker.', 'launchy-illustrator' ); ?></p>
+						<input type="text" id="content_designer_style_description" name="description" class="regular-text" value="<?php echo esc_attr( $style['description'] ); ?>" />
+						<p class="description"><?php esc_html_e( 'Shown next to the name in the style picker.', 'content-designer' ); ?></p>
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><label for="launchy_style_prompt"><?php esc_html_e( 'Art direction', 'launchy-illustrator' ); ?></label></th>
+					<th scope="row"><label for="content_designer_style_prompt"><?php esc_html_e( 'Art direction', 'content-designer' ); ?></label></th>
 					<td>
-						<textarea id="launchy_style_prompt" name="prompt" rows="14" class="large-text code"><?php echo esc_textarea( $style['prompt'] ); ?></textarea>
-						<p class="description"><?php esc_html_e( 'The master style block prepended to every image prompt — the artist you want, the palette, the rules, and what to avoid.', 'launchy-illustrator' ); ?></p>
+						<textarea id="content_designer_style_prompt" name="prompt" rows="14" class="large-text code"><?php echo esc_textarea( $style['prompt'] ); ?></textarea>
+						<p class="description"><?php esc_html_e( 'The master style block prepended to every image prompt — the artist you want, the palette, the rules, and what to avoid.', 'content-designer' ); ?></p>
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><label for="launchy_style_guidance"><?php esc_html_e( 'Planner guidance', 'launchy-illustrator' ); ?></label></th>
+					<th scope="row"><label for="content_designer_style_guidance"><?php esc_html_e( 'Planner guidance', 'content-designer' ); ?></label></th>
 					<td>
-						<textarea id="launchy_style_guidance" name="guidance" rows="5" class="large-text code"><?php echo esc_textarea( $style['guidance'] ); ?></textarea>
-						<p class="description"><?php esc_html_e( 'Tells the editorial pass what kind of scenes suit this style — describe your character and how it should act out concepts.', 'launchy-illustrator' ); ?></p>
+						<textarea id="content_designer_style_guidance" name="guidance" rows="5" class="large-text code"><?php echo esc_textarea( $style['guidance'] ); ?></textarea>
+						<p class="description"><?php esc_html_e( 'Tells the editorial pass what kind of scenes suit this style — describe your character and how it should act out concepts.', 'content-designer' ); ?></p>
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><?php esc_html_e( 'Reference images', 'launchy-illustrator' ); ?></th>
+					<th scope="row"><?php esc_html_e( 'Reference images', 'content-designer' ); ?></th>
 					<td>
-						<div id="launchy-refs" class="launchy-refs"></div>
-						<input type="hidden" id="launchy_style_references" name="references" value="<?php echo esc_attr( implode( "\n", (array) $style['references'] ) ); ?>" />
+						<div id="content-designer-refs" class="content-designer-refs"></div>
+						<input type="hidden" id="content_designer_style_references" name="references" value="<?php echo esc_attr( implode( "\n", (array) $style['references'] ) ); ?>" />
 						<p>
-							<button type="button" class="button" id="launchy-refs-add"><?php esc_html_e( 'Add from media library', 'launchy-illustrator' ); ?></button>
-							<button type="button" class="button-link" id="launchy-refs-clear"><?php esc_html_e( 'Clear all', 'launchy-illustrator' ); ?></button>
+							<button type="button" class="button" id="content-designer-refs-add"><?php esc_html_e( 'Add from media library', 'content-designer' ); ?></button>
+							<button type="button" class="button-link" id="content-designer-refs-clear"><?php esc_html_e( 'Clear all', 'content-designer' ); ?></button>
 						</p>
-						<p class="description"><?php esc_html_e( 'Passed to the image model so your character and palette stay consistent. Up to 14 are used.', 'launchy-illustrator' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Passed to the image model so your character and palette stay consistent. Up to 14 are used.', 'content-designer' ); ?></p>
 					</td>
 				</tr>
 			</table>
 
 			<p>
-				<button type="submit" class="button button-primary"><?php echo $editing_id ? esc_html__( 'Save style', 'launchy-illustrator' ) : esc_html__( 'Create style', 'launchy-illustrator' ); ?></button>
+				<button type="submit" class="button button-primary"><?php echo $editing_id ? esc_html__( 'Save style', 'content-designer' ) : esc_html__( 'Create style', 'content-designer' ); ?></button>
 				<label style="margin-left:1em;">
 					<input type="checkbox" name="select_after_save" value="1" <?php checked( ! $editing_id || $editing_id === $current ); ?> />
-					<?php esc_html_e( 'Use this style after saving', 'launchy-illustrator' ); ?>
+					<?php esc_html_e( 'Use this style after saving', 'content-designer' ); ?>
 				</label>
 				<?php if ( $editing_id ) : ?>
-					<a class="button-link" style="margin-left:1em;" href="<?php echo esc_url( add_query_arg( 'page', self::PAGE, admin_url( 'options-general.php' ) ) ); ?>"><?php esc_html_e( 'Start a new style instead', 'launchy-illustrator' ); ?></a>
+					<a class="button-link" style="margin-left:1em;" href="<?php echo esc_url( add_query_arg( 'page', self::PAGE, admin_url( 'options-general.php' ) ) ); ?>"><?php esc_html_e( 'Start a new style instead', 'content-designer' ); ?></a>
 				<?php endif; ?>
 			</p>
 		</form>
@@ -241,16 +241,16 @@ class Styles_UI {
 	 * Print the result of the last style action, if any.
 	 */
 	private function notice() {
-		$notice = isset( $_GET['launchy_notice'] ) ? sanitize_key( wp_unslash( $_GET['launchy_notice'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$notice = isset( $_GET['content_designer_notice'] ) ? sanitize_key( wp_unslash( $_GET['content_designer_notice'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $notice ) {
 			return;
 		}
 
 		$messages = array(
-			'style_saved'      => array( 'success', __( 'Style saved.', 'launchy-illustrator' ) ),
-			'style_deleted'    => array( 'success', __( 'Style deleted.', 'launchy-illustrator' ) ),
-			'style_duplicated' => array( 'success', __( 'Style duplicated — edit it below.', 'launchy-illustrator' ) ),
-			'style_error'      => array( 'error', __( 'That style could not be found.', 'launchy-illustrator' ) ),
+			'style_saved'      => array( 'success', __( 'Style saved.', 'content-designer' ) ),
+			'style_deleted'    => array( 'success', __( 'Style deleted.', 'content-designer' ) ),
+			'style_duplicated' => array( 'success', __( 'Style duplicated — edit it below.', 'content-designer' ) ),
+			'style_error'      => array( 'error', __( 'That style could not be found.', 'content-designer' ) ),
 		);
 
 		if ( ! isset( $messages[ $notice ] ) ) {
@@ -271,7 +271,7 @@ class Styles_UI {
 	 */
 	private function guard( $action ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You are not allowed to manage styles.', 'launchy-illustrator' ) );
+			wp_die( esc_html__( 'You are not allowed to manage styles.', 'content-designer' ) );
 		}
 		check_admin_referer( $action );
 	}
@@ -285,7 +285,7 @@ class Styles_UI {
 	private function redirect( $notice, $edit = '' ) {
 		$args = array(
 			'page'           => self::PAGE,
-			'launchy_notice' => $notice,
+			'content_designer_notice' => $notice,
 		);
 		if ( $edit ) {
 			$args['edit_style'] = $edit;
@@ -299,7 +299,7 @@ class Styles_UI {
 	 */
 	public function handle_save() {
 		$id = isset( $_POST['style_id'] ) ? sanitize_key( wp_unslash( $_POST['style_id'] ) ) : '';
-		$this->guard( 'launchy_style_' . $id );
+		$this->guard( 'content_designer_style_' . $id );
 
 		$saved_id = User_Styles::save(
 			$id,
@@ -324,7 +324,7 @@ class Styles_UI {
 	 */
 	public function handle_delete() {
 		$id = isset( $_POST['style_id'] ) ? sanitize_key( wp_unslash( $_POST['style_id'] ) ) : '';
-		$this->guard( 'launchy_style_' . $id );
+		$this->guard( 'content_designer_style_' . $id );
 
 		if ( User_Styles::delete( $id ) && (string) Settings::get( 'style_preset' ) === $id ) {
 			Settings::update( 'style_preset', Style_Presets::DEFAULT_PRESET );
@@ -337,7 +337,7 @@ class Styles_UI {
 	 * Duplicate any preset into an editable user style.
 	 */
 	public function handle_duplicate() {
-		$this->guard( 'launchy_duplicate_style' );
+		$this->guard( 'content_designer_duplicate_style' );
 
 		$source = isset( $_POST['source_id'] ) ? sanitize_key( wp_unslash( $_POST['source_id'] ) ) : '';
 		$new_id = User_Styles::duplicate( $source );

@@ -2,10 +2,10 @@
 /**
  * Main plugin orchestrator.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator;
+namespace Content_Designer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -13,6 +13,14 @@ defined( 'ABSPATH' ) || exit;
  * Wires the plugin together.
  */
 final class Plugin {
+
+	/**
+	 * Schema version of the data this build expects.
+	 *
+	 * 2 = user styles exist. 3 = options and post meta carry the plugin's
+	 * post-rename names.
+	 */
+	const DB_VERSION = 3;
 
 	/**
 	 * Singleton instance.
@@ -63,8 +71,11 @@ final class Plugin {
 			new Admin\Page();
 			new Admin\Editor_Panel();
 			new Admin\Styles_UI();
-			add_action( 'admin_init', array( $this, 'maybe_migrate' ) );
 		}
+
+		// Not admin-only: a REST or ability call can be the first thing that
+		// touches a freshly renamed install, and it needs the data adopted too.
+		add_action( 'init', array( $this, 'maybe_migrate' ), 1 );
 	}
 
 	/**
@@ -76,30 +87,85 @@ final class Plugin {
 	 * their art direction converted into a saved style instead of losing it.
 	 */
 	public function maybe_migrate() {
-		if ( get_option( 'launchy_illustrator_db_version' ) ) {
-			return;
+		$version = (int) get_option( 'content_designer_db_version', 0 );
+
+		if ( 0 === $version ) {
+			$version = self::adopt_pre_rename_data();
 		}
 
-		User_Styles::migrate_legacy_overrides();
-		update_option( 'launchy_illustrator_db_version', 2 );
+		if ( $version < 2 ) {
+			User_Styles::migrate_legacy_overrides();
+		}
+
+		if ( $version < self::DB_VERSION ) {
+			update_option( 'content_designer_db_version', self::DB_VERSION );
+		}
+	}
+
+	/**
+	 * Carry a pre-2.0 install over to the renamed options and meta keys.
+	 *
+	 * Up to 1.1.1 the plugin was called Launchy Illustrator and everything it
+	 * stored was prefixed accordingly. The rename would otherwise read as a
+	 * factory reset: settings gone, saved styles gone, generated attachments no
+	 * longer recognized as cleanup candidates.
+	 *
+	 * The old rows are copied, not moved, so downgrading to 1.x still finds its
+	 * own data. Post meta is renamed in place, because both versions look for
+	 * exactly one key and a duplicate would double-count.
+	 *
+	 * @return int The schema version the old install had reached, or 0 when
+	 *             there was nothing to adopt.
+	 */
+	private static function adopt_pre_rename_data() {
+		global $wpdb;
+
+		$legacy_version  = get_option( 'launchy_illustrator_db_version' );
+		$legacy_settings = get_option( 'launchy_illustrator_settings' );
+		$legacy_styles   = get_option( 'launchy_illustrator_user_styles' );
+
+		if ( false === $legacy_version && false === $legacy_settings && false === $legacy_styles ) {
+			return 0;
+		}
+
+		if ( false !== $legacy_settings && false === get_option( Settings::OPTION ) ) {
+			add_option( Settings::OPTION, $legacy_settings );
+		}
+
+		if ( false !== $legacy_styles && false === get_option( User_Styles::OPTION ) ) {
+			add_option( User_Styles::OPTION, $legacy_styles );
+		}
+
+		$meta_keys = array(
+			'_launchy_plan'      => Placement_Planner::PLAN_META,
+			'_launchy_generated' => Media_Manager::GENERATED_META,
+		);
+
+		foreach ( $meta_keys as $old => $new ) {
+			$wpdb->update( $wpdb->postmeta, array( 'meta_key' => $new ), array( 'meta_key' => $old ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		}
+
+		// A 1.x install that never ran its own migration still predates user
+		// styles, so report 1 rather than 0 to keep that step queued.
+		return max( 1, (int) $legacy_version );
 	}
 
 	/**
 	 * Register built-in media types and translations.
 	 */
 	public function init() {
-		load_plugin_textdomain( 'launchy-illustrator' );
+		load_plugin_textdomain( 'content-designer' );
 
 		$this->media_types->register( new Media_Types\Illustration() );
 
 		/**
 		 * Register additional media types (charts, diagrams, video, ...).
 		 *
-		 * Each type extends Launchy_Illustrator\Media_Types\Media_Type and plugs
+		 * Each type extends Content_Designer\Media_Types\Media_Type and plugs
 		 * into the same scan -> plan -> generate -> place pipeline.
 		 *
 		 * @param Media_Types\Registry $registry The media type registry.
 		 */
-		do_action( 'launchy_illustrator_register_media_types', $this->media_types );
+		do_action( 'content_designer_register_media_types', $this->media_types );
 	}
 }
