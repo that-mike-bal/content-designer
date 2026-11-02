@@ -1,0 +1,47 @@
+name: Bug report
+description: Something the plugin does that it shouldn't, or doesn't do that it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please don't paste an API key, or a screenshot with one in it. If the problem involves
+        credential exposure or an authenticated bypass, email me@mikebal.com instead of filing here.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where
+      options:
+        - Illustrate sidebar in the post editor
+        - Tools → Illustrate
+        - Settings → Content Designer
+        - REST API or an ability call
+        - Somewhere else / not sure
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions
+      description: Plugin, WordPress, and PHP versions. Mention the models if you changed them.
+      placeholder: |
+        Content Designer: 2.0.0
+        WordPress: 6.8.1
+        PHP: 8.2
+    validations:
+      required: true
+  - type: textarea
+    id: errors
+    attributes:
+      label: Errors
+      description: >
+        Anything from the PHP error log or the browser console, and the response body if a REST
+        call failed. Redact the key.
+      render: shell

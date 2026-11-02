@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security report
+    url: https://github.com/that-mike-bal/content-designer/blob/main/SECURITY.md
+    about: Don't file credential or access issues publicly — email me@mikebal.com.
+  - name: Setting it up
+    url: https://github.com/that-mike-bal/content-designer#configuration
+    about: API key resolution order, styles, and the two ways to run the pipeline.
