@@ -9,15 +9,15 @@
  *
  * Registered on wp_abilities_api_init (no-op if the Abilities API isn't loaded).
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator;
+namespace Content_Designer;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registers launchy-illustrator/* abilities.
+ * Registers content-designer/* abilities.
  */
 class Abilities {
 
@@ -32,10 +32,10 @@ class Abilities {
 		}
 
 		wp_register_ability_category(
-			'launchy-illustrator',
+			'content-designer',
 			array(
-				'label'       => __( 'Launchy Illustrator', 'launchy-illustrator' ),
-				'description' => __( 'Plan, generate, and place AI media in posts.', 'launchy-illustrator' ),
+				'label'       => __( 'Content Designer', 'content-designer' ),
+				'description' => __( 'Plan, generate, and place AI media in posts.', 'content-designer' ),
 			)
 		);
 	}
@@ -66,21 +66,21 @@ class Abilities {
 	}
 
 	/**
-	 * launchy-illustrator/plan-media — scan a draft and propose placements.
+	 * content-designer/plan-media — scan a draft and propose placements.
 	 */
 	private function register_plan_ability() {
 		wp_register_ability(
-			'launchy-illustrator/plan-media',
+			'content-designer/plan-media',
 			array(
-				'label'               => __( 'Plan media for a draft', 'launchy-illustrator' ),
-				'description'         => __( 'Scans a post and returns an editorial plan of where supporting media (illustrations and other types) would genuinely help, with roles, aspect ratios, and scene direction.', 'launchy-illustrator' ),
-				'category'            => 'launchy-illustrator',
+				'label'               => __( 'Plan media for a draft', 'content-designer' ),
+				'description'         => __( 'Scans a post and returns an editorial plan of where supporting media (illustrations and other types) would genuinely help, with roles, aspect ratios, and scene direction.', 'content-designer' ),
+				'category'            => 'content-designer',
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'properties'           => array(
 						'post_id' => array(
 							'type'        => 'integer',
-							'description' => __( 'The post to analyze.', 'launchy-illustrator' ),
+							'description' => __( 'The post to analyze.', 'content-designer' ),
 						),
 					),
 					'required'             => array( 'post_id' ),
@@ -96,11 +96,11 @@ class Abilities {
 				'execute_callback'    => function ( $input ) {
 					$post = get_post( (int) $input['post_id'] );
 					if ( ! $post ) {
-						return new \WP_Error( 'launchy_no_post', __( 'Post not found.', 'launchy-illustrator' ) );
+						return new \WP_Error( 'content_designer_no_post', __( 'Post not found.', 'content-designer' ) );
 					}
 					$scan = ( new Draft_Scanner() )->scan( $post );
 					if ( empty( $scan['outline'] ) ) {
-						return new \WP_Error( 'launchy_empty_post', __( 'This draft has no content to scan yet.', 'launchy-illustrator' ) );
+						return new \WP_Error( 'content_designer_empty_post', __( 'This draft has no content to scan yet.', 'content-designer' ) );
 					}
 					$plan = ( new Placement_Planner() )->plan( $post, $scan );
 					if ( is_wp_error( $plan ) ) {
@@ -124,22 +124,22 @@ class Abilities {
 	}
 
 	/**
-	 * launchy-illustrator/generate-media — generate one image for a placement.
+	 * content-designer/generate-media — generate one image for a placement.
 	 */
 	private function register_generate_ability() {
 		wp_register_ability(
-			'launchy-illustrator/generate-media',
+			'content-designer/generate-media',
 			array(
-				'label'               => __( 'Generate media for a placement', 'launchy-illustrator' ),
-				'description'         => __( 'Generates a single on-brand media asset for one planned placement and saves it to the media library (without inserting it into the post).', 'launchy-illustrator' ),
-				'category'            => 'launchy-illustrator',
+				'label'               => __( 'Generate media for a placement', 'content-designer' ),
+				'description'         => __( 'Generates a single on-brand media asset for one planned placement and saves it to the media library (without inserting it into the post).', 'content-designer' ),
+				'category'            => 'content-designer',
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'properties'           => array(
 						'post_id'   => array( 'type' => 'integer' ),
 						'placement' => array(
 							'type'        => 'object',
-							'description' => __( 'A single placement item from plan-media.', 'launchy-illustrator' ),
+							'description' => __( 'A single placement item from plan-media.', 'content-designer' ),
 						),
 						'variation' => array(
 							'type'    => 'integer',
@@ -176,22 +176,22 @@ class Abilities {
 	}
 
 	/**
-	 * launchy-illustrator/place-media — insert chosen media into the post.
+	 * content-designer/place-media — insert chosen media into the post.
 	 */
 	private function register_place_ability() {
 		wp_register_ability(
-			'launchy-illustrator/place-media',
+			'content-designer/place-media',
 			array(
-				'label'               => __( 'Place media into a draft', 'launchy-illustrator' ),
-				'description'         => __( 'Inserts chosen generated media into the post at the planned anchors and sets the hero as the featured image. Updates the draft body only — never changes post status or publishes.', 'launchy-illustrator' ),
-				'category'            => 'launchy-illustrator',
+				'label'               => __( 'Place media into a draft', 'content-designer' ),
+				'description'         => __( 'Inserts chosen generated media into the post at the planned anchors and sets the hero as the featured image. Updates the draft body only — never changes post status or publishes.', 'content-designer' ),
+				'category'            => 'content-designer',
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'properties'           => array(
 						'post_id'    => array( 'type' => 'integer' ),
 						'selections' => array(
 							'type'        => 'array',
-							'description' => __( 'List of {placement, attachment_id} to place.', 'launchy-illustrator' ),
+							'description' => __( 'List of {placement, attachment_id} to place.', 'content-designer' ),
 						),
 						'discard'    => array(
 							'type'    => 'array',

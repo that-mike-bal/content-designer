@@ -7,11 +7,11 @@
  * even as you add attachments alongside them.
  */
 ( function () {
-	var hidden = document.getElementById( 'launchy_style_references' );
-	var strip = document.getElementById( 'launchy-refs' );
-	var addBtn = document.getElementById( 'launchy-refs-add' );
-	var clearBtn = document.getElementById( 'launchy-refs-clear' );
-	var l10n = window.launchyStyles || {};
+	var hidden = document.getElementById( 'content_designer_style_references' );
+	var strip = document.getElementById( 'content-designer-refs' );
+	var addBtn = document.getElementById( 'content-designer-refs-add' );
+	var clearBtn = document.getElementById( 'content-designer-refs-clear' );
+	var l10n = window.contentDesignerStyles || {};
 
 	if ( ! hidden || ! strip ) {
 		return;
@@ -36,11 +36,11 @@
 
 	function chip( ref ) {
 		var el = document.createElement( 'div' );
-		el.className = 'launchy-ref';
+		el.className = 'content-designer-ref';
 
 		var kill = document.createElement( 'button' );
 		kill.type = 'button';
-		kill.className = 'launchy-ref-remove';
+		kill.className = 'content-designer-ref-remove';
 		kill.setAttribute( 'aria-label', 'Remove reference' );
 		kill.textContent = '×';
 		kill.addEventListener( 'click', function () {
@@ -115,7 +115,7 @@
 	}
 
 	// Guard the delete buttons in the saved-styles table.
-	document.querySelectorAll( '.js-launchy-confirm' ).forEach( function ( button ) {
+	document.querySelectorAll( '.js-content-designer-confirm' ).forEach( function ( button ) {
 		button.addEventListener( 'click', function ( event ) {
 			if ( ! window.confirm( l10n.confirmText || 'Delete this style?' ) ) {
 				event.preventDefault();

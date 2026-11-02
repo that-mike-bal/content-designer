@@ -11,13 +11,13 @@
 ( function ( wp ) {
 	'use strict';
 
-	window.launchy = window.launchy || {};
+	window.contentDesigner = window.contentDesigner || {};
 
 	const { createElement: h, Fragment } = wp.element;
 	const { Modal, Button, Spinner } = wp.components;
 	const { __, sprintf } = wp.i18n;
 
-	const store = window.launchy.store;
+	const store = window.contentDesigner.store;
 
 	/**
 	 * Aspect-ratio CSS for a placeholder, so the layout does not jump when the
@@ -45,7 +45,7 @@
 
 		return h(
 			'div',
-			{ className: 'launchy-shot' + ( isChosen ? ' is-chosen' : '' ) },
+			{ className: 'content-designer-shot' + ( isChosen ? ' is-chosen' : '' ) },
 			h( 'img', {
 				src: shot.url,
 				alt: placement.alt_text || '',
@@ -53,7 +53,7 @@
 			} ),
 			h(
 				'div',
-				{ className: 'launchy-shot__actions' },
+				{ className: 'content-designer-shot__actions' },
 				h(
 					Button,
 					{
@@ -63,7 +63,7 @@
 							store.keep( placement.id, shot );
 						},
 					},
-					isChosen ? __( 'Placed', 'launchy-illustrator' ) : __( 'Keep', 'launchy-illustrator' )
+					isChosen ? __( 'Placed', 'content-designer' ) : __( 'Keep', 'content-designer' )
 				),
 				! isChosen
 					? h(
@@ -75,7 +75,7 @@
 									store.reject( placement.id, shot );
 								},
 							},
-							__( 'Reject', 'launchy-illustrator' )
+							__( 'Reject', 'content-designer' )
 					  )
 					: null
 			)
@@ -95,17 +95,17 @@
 
 		return h(
 			'section',
-			{ className: 'launchy-row' },
+			{ className: 'content-designer-row' },
 			h(
 				'header',
-				{ className: 'launchy-row__head' },
+				{ className: 'content-designer-row__head' },
 				h( 'h3', null, placement.role ),
-				h( 'span', { className: 'launchy-row__anchor' }, placement.anchor_label )
+				h( 'span', { className: 'content-designer-row__anchor' }, placement.anchor_label )
 			),
-			h( 'p', { className: 'launchy-row__scene' }, placement.scene ),
+			h( 'p', { className: 'content-designer-row__scene' }, placement.scene ),
 			h(
 				'div',
-				{ className: 'launchy-row__shots' },
+				{ className: 'content-designer-row__shots' },
 				shots.map( function ( shot ) {
 					return h( Shot, {
 						key: shot.attachment_id,
@@ -120,7 +120,7 @@
 					? h(
 							'div',
 							{
-								className: 'launchy-shot is-pending',
+								className: 'content-designer-shot is-pending',
 								style: ratioStyle( placement.aspect_ratio ),
 							},
 							h( Spinner, null )
@@ -129,8 +129,8 @@
 				! shots.length && ! pending
 					? h(
 							'p',
-							{ className: 'launchy-row__empty' },
-							__( 'Nothing kept for this placement.', 'launchy-illustrator' )
+							{ className: 'content-designer-row__empty' },
+							__( 'Nothing kept for this placement.', 'content-designer' )
 					  )
 					: null
 			)
@@ -157,19 +157,19 @@
 		return h(
 			Modal,
 			{
-				title: __( 'Review the images', 'launchy-illustrator' ),
-				className: 'launchy-modal',
+				title: __( 'Review the images', 'content-designer' ),
+				className: 'content-designer-modal',
 				onRequestClose: function () {
 					store.setModalOpen( false );
 				},
 			},
 			h(
 				'p',
-				{ className: 'launchy-modal__progress', 'aria-live': 'polite' },
+				{ className: 'content-designer-modal__progress', 'aria-live': 'polite' },
 				run.status === 'generating'
 					? sprintf(
 							/* translators: 1: images finished, 2: images total */
-							__( '%1$d of %2$d generated. Keep them as they arrive — the rest are still rendering.', 'launchy-illustrator' ),
+							__( '%1$d of %2$d generated. Keep them as they arrive — the rest are still rendering.', 'content-designer' ),
 							run.progress.done,
 							run.progress.total
 					  )
@@ -180,7 +180,7 @@
 			} ),
 			h(
 				'div',
-				{ className: 'launchy-modal__actions' },
+				{ className: 'content-designer-modal__actions' },
 				run.status === 'generating'
 					? h(
 							Button,
@@ -189,7 +189,7 @@
 								isDestructive: true,
 								onClick: store.cancel,
 							},
-							__( 'Cancel run', 'launchy-illustrator' )
+							__( 'Cancel run', 'content-designer' )
 					  )
 					: null,
 				h(
@@ -204,12 +204,12 @@
 						},
 					},
 					run.status === 'complete'
-						? __( 'Done', 'launchy-illustrator' )
-						: __( 'Close', 'launchy-illustrator' )
+						? __( 'Done', 'content-designer' )
+						: __( 'Close', 'content-designer' )
 				)
 			)
 		);
 	}
 
-	window.launchy.ReviewModal = ReviewModal;
+	window.contentDesigner.ReviewModal = ReviewModal;
 } )( window.wp );
