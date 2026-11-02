@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Launchy Illustrator — Launchy Style Preset
  * Description: Adds the "Launchy" brand style (Leading Product) to Launchy Illustrator's style-preset picker: 1930s rubber-hose mascot art in an emerald green / ink / paper-white palette, with canonical character reference images.
- * Version:     1.1.0
+ * Version:     1.1.1
  * License:     GPL-2.0-or-later
  *
  * This is also the reference example for shipping YOUR OWN style preset:

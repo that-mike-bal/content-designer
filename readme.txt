@@ -4,7 +4,7 @@ Tags: ai, images, illustration, gemini, editorial
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,6 +58,17 @@ automatically. See `examples/example-diagram-media-type.php`.
    * **Tools → Illustrate** — pick a draft from a list and run the same pipeline.
 
 == Changelog ==
+
+= 1.1.1 =
+* The settings screen now names which source the Gemini API key is read from —
+  the `LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY` constant, the generic
+  `GEMINI_API_KEY` constant, the environment, or the key saved on the screen —
+  so an empty field no longer looks the same whether a constant is live or
+  missing. When no key is configured anywhere the screen says so, and notes
+  that a constant defined below wp-config.php's "stop editing" line is set too
+  late for plugins to see.
+* Tools -> Illustrate reuses that same wording, so the two screens cannot
+  disagree about where the key comes from.
 
 = 1.1.0 =
 * New: an **Illustrate** sidebar in the post editor. Scan the post you are
