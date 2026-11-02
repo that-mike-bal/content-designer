@@ -4,7 +4,7 @@ Tags: ai, images, illustration, gemini, editorial
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.1
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,6 +58,25 @@ automatically. See `examples/example-diagram-media-type.php`.
    * **Tools → Illustrate** — pick a draft from a list and run the same pipeline.
 
 == Changelog ==
+
+= 1.2.0 =
+* The default models are now Gemini 3.8 Flash (`gemini-3.8-flash`) for the
+  editorial pass and Nano Banana 2.1 (`gemini-nano-banana-2.1`) for images.
+  The previous defaults are both end of life: Gemini 2.5 Flash reached its
+  retirement date on 20 October 2026, and `gemini-2.5-flash-image` is the
+  legacy original Nano Banana.
+* Existing sites are migrated on upgrade. A model saved on the settings screen
+  wins over the default, so retired IDs are rewritten in place — 2.5 / 3.6 /
+  3.7 Flash to 3.8 Flash, and the original Nano Banana or Nano Banana 2 to
+  Nano Banana 2.1. Any other value you set yourself is left untouched.
+* Fixed: image resolution was silently dropped for any model whose name did
+  not contain "gemini-3". The `imageSize` request field was gated on that
+  string, so a newer model — `gemini-nano-banana-2.1` among them — generated
+  at the API default size no matter which resolution was planned. The gate now
+  matches the one model that ignores the field instead of guessing from a
+  version prefix.
+* The 512px resolution is no longer accepted: Nano Banana 2.1 dropped that
+  tier. Requests asking for it fall back to the role's own resolution.
 
 = 1.1.1 =
 * The settings screen now names which source the Gemini API key is read from —

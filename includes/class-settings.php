@@ -45,8 +45,8 @@ class Settings {
 	public static function defaults() {
 		return array(
 			'gemini_api_key'    => '',
-			'text_model'        => 'gemini-2.5-flash',
-			'image_model'       => 'gemini-2.5-flash-image',
+			'text_model'        => 'gemini-3.8-flash',
+			'image_model'       => 'gemini-nano-banana-2.1',
 			'use_wp_ai_client'  => true,
 			'style_preset'      => Style_Presets::DEFAULT_PRESET,
 			'style_prompt'      => '', // Empty = the selected preset drives the style.
@@ -57,6 +57,47 @@ class Settings {
 			'hero_in_content'   => false,
 			'cleanup_variants'  => true,
 		);
+	}
+
+	/**
+	 * Point stored model settings at models that still answer.
+	 *
+	 * Google retires model IDs on a published schedule, and a saved setting
+	 * wins over defaults() in get(), so changing the defaults alone would
+	 * leave an existing site calling a model that is gone. Only the exact
+	 * retired IDs are rewritten -- any other value is somebody's deliberate
+	 * choice and is left alone.
+	 *
+	 * @return void
+	 */
+	public static function migrate_retired_models() {
+		$map = array(
+			// 2.5 Flash reached its retirement date on 2026-10-20; 3.6 and 3.7
+			// Flash are also past deprecation. Google names 3.8 Flash as the
+			// replacement for all three.
+			'gemini-2.5-flash'       => 'gemini-3.8-flash',
+			'gemini-3.6-flash'       => 'gemini-3.8-flash',
+			'gemini-3.7-flash'       => 'gemini-3.8-flash',
+			// The original Nano Banana is legacy and Nano Banana 2 was
+			// deprecated on 2026-10-06, both in favor of Nano Banana 2.1.
+			'gemini-2.5-flash-image' => 'gemini-nano-banana-2.1',
+			'gemini-3.1-flash-image' => 'gemini-nano-banana-2.1',
+		);
+
+		$opts    = (array) get_option( self::OPTION, array() );
+		$changed = false;
+
+		foreach ( array( 'text_model', 'image_model' ) as $key ) {
+			$current = isset( $opts[ $key ] ) ? (string) $opts[ $key ] : '';
+			if ( isset( $map[ $current ] ) ) {
+				$opts[ $key ] = $map[ $current ];
+				$changed      = true;
+			}
+		}
+
+		if ( $changed ) {
+			update_option( self::OPTION, $opts );
+		}
 	}
 
 	/**
@@ -186,8 +227,8 @@ class Settings {
 
 		$fields = array(
 			'gemini_api_key'    => array( __( 'Gemini API key', 'launchy-illustrator' ), 'password', __( 'Leave empty if defined as LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY in wp-config.php (recommended).', 'launchy-illustrator' ) ),
-			'text_model'        => array( __( 'Text model (editorial pass)', 'launchy-illustrator' ), 'text', '' ),
-			'image_model'       => array( __( 'Image model', 'launchy-illustrator' ), 'text', __( 'Default is Nano Banana (gemini-2.5-flash-image).', 'launchy-illustrator' ) ),
+			'text_model'        => array( __( 'Text model (editorial pass)', 'launchy-illustrator' ), 'text', __( 'Default is Gemini 3.8 Flash (gemini-3.8-flash).', 'launchy-illustrator' ) ),
+			'image_model'       => array( __( 'Image model', 'launchy-illustrator' ), 'text', __( 'Default is Nano Banana 2.1 (gemini-nano-banana-2.1).', 'launchy-illustrator' ) ),
 			'use_wp_ai_client'  => array( __( 'Prefer the WordPress AI Client for text when available', 'launchy-illustrator' ), 'checkbox', __( 'Image generation always calls Gemini directly so reference images and aspect ratios are honored.', 'launchy-illustrator' ) ),
 			'style_preset'      => array( __( 'Style preset', 'launchy-illustrator' ), 'select', __( 'Pick a ready-made look. Plugins can add more presets (e.g. a brand mascot preset).', 'launchy-illustrator' ) ),
 			'hero_variations'   => array( __( 'Variations for hero images', 'launchy-illustrator' ), 'number', '' ),

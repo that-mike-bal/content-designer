@@ -16,5 +16,5 @@
 define( 'LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY', 'YOUR_GEMINI_API_KEY_HERE' );
 
 // The text and image models are set on the Settings → Launchy Illustrator
-// screen (defaults: gemini-2.5-flash for planning, gemini-2.5-flash-image
-// "Nano Banana" for images).
+// screen (defaults: gemini-3.8-flash for planning, gemini-nano-banana-2.1
+// "Nano Banana 2.1" for images).

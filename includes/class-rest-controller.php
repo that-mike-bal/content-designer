@@ -487,7 +487,8 @@ class REST_Controller {
 			// on classic content, where the two agree.
 			'anchor_ordinal' => isset( $raw['anchor_ordinal'] ) ? absint( $raw['anchor_ordinal'] ) : $anchor,
 			'aspect_ratio' => $ratio,
-			'resolution'   => in_array( $raw['resolution'] ?? '', array( '512', '1K', '2K', '4K' ), true ) ? $raw['resolution'] : $roles[ $role ]['resolution'],
+			// Nano Banana 2.1 dropped the 512px tier that Nano Banana 2 had.
+			'resolution'   => in_array( $raw['resolution'] ?? '', array( '1K', '2K', '4K' ), true ) ? $raw['resolution'] : $roles[ $role ]['resolution'],
 			'scene'        => $scene,
 			'composition'  => sanitize_textarea_field( (string) ( $raw['composition'] ?? '' ) ),
 			'alt_text'     => sanitize_text_field( (string) ( $raw['alt_text'] ?? wp_trim_words( $scene, 20 ) ) ),

@@ -15,6 +15,13 @@ defined( 'ABSPATH' ) || exit;
 final class Plugin {
 
 	/**
+	 * Schema version for the one-time migrations in maybe_migrate().
+	 *
+	 * @var int
+	 */
+	const DB_VERSION = 3;
+
+	/**
 	 * Singleton instance.
 	 *
 	 * @var Plugin|null
@@ -76,12 +83,20 @@ final class Plugin {
 	 * their art direction converted into a saved style instead of losing it.
 	 */
 	public function maybe_migrate() {
-		if ( get_option( 'launchy_illustrator_db_version' ) ) {
+		$version = (int) get_option( 'launchy_illustrator_db_version', 0 );
+		if ( $version >= self::DB_VERSION ) {
 			return;
 		}
 
-		User_Styles::migrate_legacy_overrides();
-		update_option( 'launchy_illustrator_db_version', 2 );
+		if ( $version < 2 ) {
+			User_Styles::migrate_legacy_overrides();
+		}
+
+		if ( $version < 3 ) {
+			Settings::migrate_retired_models();
+		}
+
+		update_option( 'launchy_illustrator_db_version', self::DB_VERSION );
 	}
 
 	/**

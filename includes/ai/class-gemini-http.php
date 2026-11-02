@@ -84,8 +84,10 @@ class Gemini_Http {
 		}
 
 		$image_config = array( 'aspectRatio' => $args['aspect_ratio'] );
-		// imageSize is only understood by Gemini 3.x image models.
-		if ( false !== strpos( $args['model'], 'gemini-3' ) ) {
+		// Every image model since the original Nano Banana honors imageSize.
+		// Matching that one exception, rather than the string "gemini-3",
+		// keeps later model names working -- gemini-nano-banana-2.1 included.
+		if ( false === strpos( $args['model'], 'gemini-2.5' ) ) {
 			$image_config['imageSize'] = $args['resolution'];
 		}
 
