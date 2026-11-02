@@ -129,7 +129,7 @@ class Page {
 			<?php if ( ! Settings::api_key() ) : ?>
 				<div class="notice notice-error inline">
 					<p>
-						<?php esc_html_e( 'No Gemini API key configured — generation will fail.', 'launchy-illustrator' ); ?>
+						<?php echo esc_html( Settings::api_key_source_label() ); ?>
 						<a href="<?php echo esc_url( $settings_url ); ?>"><?php esc_html_e( 'Add one in settings', 'launchy-illustrator' ); ?></a>
 					</p>
 				</div>

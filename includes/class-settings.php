@@ -83,23 +83,73 @@ class Settings {
 	}
 
 	/**
-	 * Resolve the Gemini API key. Constants win over the stored option so the
-	 * key can live in wp-config.php instead of the database.
+	 * Resolve the Gemini API key and the source it came from. Constants win
+	 * over the stored option so the key can live in wp-config.php instead of
+	 * the database.
+	 *
+	 * api_key() and api_key_source() both read through here, so the settings
+	 * screen can never name a different source than the one actually used.
+	 *
+	 * @return array Source slug ('' when nothing is set) and the key.
+	 */
+	private static function resolve_api_key() {
+		if ( defined( 'LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY' ) && LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY ) {
+			return array( 'constant', (string) LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY );
+		}
+		if ( defined( 'GEMINI_API_KEY' ) && GEMINI_API_KEY ) {
+			return array( 'constant_generic', (string) GEMINI_API_KEY );
+		}
+		$env = getenv( 'GEMINI_API_KEY' );
+		if ( $env ) {
+			return array( 'environment', (string) $env );
+		}
+		$stored = (string) self::get( 'gemini_api_key' );
+
+		return array( $stored ? 'option' : '', $stored );
+	}
+
+	/**
+	 * The Gemini API key in effect, or '' when none is configured.
 	 *
 	 * @return string
 	 */
 	public static function api_key() {
-		if ( defined( 'LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY' ) && LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY ) {
-			return LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY;
+		$resolved = self::resolve_api_key();
+
+		return $resolved[1];
+	}
+
+	/**
+	 * Which source api_key() is reading from: 'constant', 'constant_generic',
+	 * 'environment', 'option', or '' when nothing is configured anywhere.
+	 *
+	 * @return string
+	 */
+	public static function api_key_source() {
+		$resolved = self::resolve_api_key();
+
+		return $resolved[0];
+	}
+
+	/**
+	 * A sentence naming where the key in effect comes from. Shown on the
+	 * settings screen and in the Illustrate screen's no-key notice.
+	 *
+	 * @return string
+	 */
+	public static function api_key_source_label() {
+		switch ( self::api_key_source() ) {
+			case 'constant':
+				return __( 'In use: the LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY constant in wp-config.php. Anything saved in this field is ignored.', 'launchy-illustrator' );
+			case 'constant_generic':
+				return __( 'In use: the GEMINI_API_KEY constant in wp-config.php. Anything saved in this field is ignored.', 'launchy-illustrator' );
+			case 'environment':
+				return __( 'In use: the GEMINI_API_KEY environment variable. Anything saved in this field is ignored.', 'launchy-illustrator' );
+			case 'option':
+				return __( 'In use: the key saved on this screen.', 'launchy-illustrator' );
+			default:
+				return __( 'No Gemini API key is configured anywhere, so generation will fail. Save one here, or define LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY in wp-config.php above the "stop editing" line — below that line it is defined too late for plugins to see.', 'launchy-illustrator' );
 		}
-		if ( defined( 'GEMINI_API_KEY' ) && GEMINI_API_KEY ) {
-			return GEMINI_API_KEY;
-		}
-		$env = getenv( 'GEMINI_API_KEY' );
-		if ( $env ) {
-			return $env;
-		}
-		return (string) self::get( 'gemini_api_key' );
 	}
 
 	/**
@@ -241,6 +291,14 @@ class Settings {
 
 		if ( ! empty( $args['help'] ) ) {
 			printf( '<p class="description">%s</p>', esc_html( $args['help'] ) );
+		}
+
+		if ( 'gemini_api_key' === $key ) {
+			if ( '' === self::api_key_source() ) {
+				printf( '<div class="notice notice-error inline"><p>%s</p></div>', esc_html( self::api_key_source_label() ) );
+			} else {
+				printf( '<p class="description"><strong>%s</strong></p>', esc_html( self::api_key_source_label() ) );
+			}
 		}
 	}
 
