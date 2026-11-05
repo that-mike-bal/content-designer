@@ -3,7 +3,7 @@
  * Plugin Name:       Content Designer
  * Plugin URI:        https://mikebal.com
  * Description:       An AI media director for your drafts. Reads a post like an editor, plans where a visual genuinely earns its place, generates it in your own configured style with Google Gemini, and places it — never publishing. Built on the WordPress Abilities API, AI Client, and Interactivity API.
- * Version:           2.0.0
+ * Version:           2.1.0
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            Mike Bal
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CONTENT_DESIGNER_VERSION', '2.0.0' );
+define( 'CONTENT_DESIGNER_VERSION', '2.1.0' );
 define( 'CONTENT_DESIGNER_FILE', __FILE__ );
 define( 'CONTENT_DESIGNER_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CONTENT_DESIGNER_URL', plugin_dir_url( __FILE__ ) );

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Content Designer — Launchy Style Preset (example)
  * Description: The worked example for shipping your own style. Adds "Launchy", the mascot style from mikebal.com, to Content Designer's style-preset picker: 1930s rubber-hose mascot art in an emerald green / ink / paper-white palette, with canonical character reference images.
- * Version:     2.0.0
+ * Version:     2.1.0
  * License:     GPL-2.0-or-later
  *
  * This is also the reference example for shipping YOUR OWN style preset:

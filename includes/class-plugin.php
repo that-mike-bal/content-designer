@@ -18,9 +18,12 @@ final class Plugin {
 	 * Schema version of the data this build expects.
 	 *
 	 * 2 = user styles exist. 3 = options and post meta carry the plugin's
-	 * post-rename names.
+	 * post-rename names. 4 = stored model IDs point at models Google still
+	 * serves.
+	 *
+	 * @var int
 	 */
-	const DB_VERSION = 3;
+	const DB_VERSION = 4;
 
 	/**
 	 * Singleton instance.
@@ -79,16 +82,25 @@ final class Plugin {
 	}
 
 	/**
-	 * Move legacy global overrides into a real, editable style.
+	 * Run whichever one-time migrations this install has not had yet.
 	 *
-	 * Before user styles existed the only way to customize the look was to fill
-	 * in the three override fields, which silently replaced whatever preset was
-	 * selected. Those fields are gone from the UI, so anyone who used them gets
-	 * their art direction converted into a saved style instead of losing it.
+	 * Three steps, in dependency order. Adopting the pre-2.0 data comes first
+	 * because the other two read the settings row, which does not exist under
+	 * its new name until that runs. Then legacy global overrides become a real,
+	 * editable style — before user styles existed, the only way to customize the
+	 * look was three override fields that silently replaced the selected preset,
+	 * and those fields are gone from the UI. Last, stored model IDs that Google
+	 * has retired are pointed at their replacements.
 	 */
 	public function maybe_migrate() {
 		$version = (int) get_option( 'content_designer_db_version', 0 );
 
+		if ( $version >= self::DB_VERSION ) {
+			return;
+		}
+
+		// Has to come first: the steps below read and rewrite the settings row,
+		// which on a pre-2.0 install does not exist under its new name yet.
 		if ( 0 === $version ) {
 			$version = self::adopt_pre_rename_data();
 		}
@@ -97,9 +109,11 @@ final class Plugin {
 			User_Styles::migrate_legacy_overrides();
 		}
 
-		if ( $version < self::DB_VERSION ) {
-			update_option( 'content_designer_db_version', self::DB_VERSION );
+		if ( $version < 4 ) {
+			Settings::migrate_retired_models();
 		}
+
+		update_option( 'content_designer_db_version', self::DB_VERSION );
 	}
 
 	/**

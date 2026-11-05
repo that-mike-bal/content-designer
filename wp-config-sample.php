@@ -19,4 +19,5 @@ define( 'CONTENT_DESIGNER_GEMINI_API_KEY', 'YOUR_GEMINI_API_KEY_HERE' );
 // which is handy when other tooling on the host already defines one.
 
 // The text and image models are set on the Settings → Content Designer screen
-// (defaults: gemini-2.5-flash for planning, gemini-2.5-flash-image for images).
+// (defaults: gemini-3.8-flash for planning, gemini-nano-banana-2.1
+// "Nano Banana 2.1" for images).
