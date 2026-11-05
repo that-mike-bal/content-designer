@@ -8,7 +8,7 @@ Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-An AI media director for your drafts. Reads a post, plans where a visual earns its place, generates it in your style, and places it. Bring your own key.
+An AI media director for your drafts. Reads a post, plans where a visual earns its place, generates it in your style, places it. Bring your own key.
 
 == Description ==
 
