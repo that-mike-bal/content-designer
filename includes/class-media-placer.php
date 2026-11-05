@@ -3,10 +3,10 @@
  * Media placer: inserts chosen media into the post at the planned anchors and
  * sets the featured image. Never touches post status.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator;
+namespace Content_Designer;
 
 use WP_Error;
 

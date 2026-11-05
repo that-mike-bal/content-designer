@@ -15,7 +15,7 @@
 ( function ( wp ) {
 	'use strict';
 
-	window.launchy = window.launchy || {};
+	window.contentDesigner = window.contentDesigner || {};
 
 	const { select, dispatch } = wp.data;
 	const { createBlock } = wp.blocks;
@@ -84,7 +84,7 @@
 	 */
 	function insertKept( placement, attachment ) {
 		const id = Number( attachment.attachment_id );
-		const config = window.launchyIllustrator || {};
+		const config = window.contentDesigner || {};
 		const isHero = placement.role === 'hero';
 		let featured = false;
 
@@ -129,7 +129,7 @@
 		};
 	}
 
-	window.launchy.insert = {
+	window.contentDesigner.insert = {
 		resolveAnchors,
 		insertKept,
 		currentPosition,

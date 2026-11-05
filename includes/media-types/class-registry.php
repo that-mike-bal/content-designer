@@ -2,10 +2,10 @@
 /**
  * Media type registry.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator\Media_Types;
+namespace Content_Designer\Media_Types;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -52,6 +52,6 @@ class Registry {
 		 *
 		 * @param Media_Type[] $types Types keyed by slug.
 		 */
-		return apply_filters( 'launchy_illustrator_media_types', $this->types );
+		return apply_filters( 'content_designer_media_types', $this->types );
 	}
 }

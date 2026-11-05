@@ -1,8 +1,12 @@
-# Launchy Illustrator
+# Content Designer
 
-AI media director for [Leading Product](https://mikebal.com). Scans a draft, plans where
-supporting media actually earns its place, generates on-brand illustrations with Gemini, and
-places them into the post. It never publishes — placement stops at the draft.
+An AI media director for your WordPress drafts. It reads a post like an editor, decides where a
+visual genuinely earns its place — to conceptualize an idea or to pace long text, never decoration
+— generates it in **your** configured style with Google Gemini, and places it at the right section
+boundary. It never publishes: placement stops at the draft.
+
+Bring your own API key. The plugin ships no credentials, proxies nothing through a third party, and
+calls Google directly with the key you configure.
 
 Built on three modern WordPress primitives: the **Abilities API**, the **AI Client**, and the
 **Interactivity API**.
@@ -11,30 +15,29 @@ Built on three modern WordPress primitives: the **Abilities API**, the **AI Clie
 
 - WordPress 6.7+ (Abilities API features require 7.0+)
 - PHP 7.4+
-- A Google Gemini API key — https://aistudio.google.com/apikey
+- A Google Gemini API key — free from https://aistudio.google.com/apikey
 
 ## Installation
 
-Deployed to mikebal.com via WordPress.com GitHub Deployments: this repository's root maps to
-`/wp-content/plugins/launchy-illustrator`, simple mode, no build step. Pushes to `main` deploy
-automatically.
-
-For any other site, copy the directory into `wp-content/plugins/` and activate.
+Copy the plugin directory into `wp-content/plugins/content-designer` and activate it, or install
+the zip through **Plugins → Add New → Upload Plugin**.
 
 ## Configuration
 
 The API key is resolved in this order, first match wins (`Settings::api_key()`):
 
-1. `LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY` constant in `wp-config.php` — **recommended**
-2. `GEMINI_API_KEY` constant
-3. `GEMINI_API_KEY` environment variable
-4. The `gemini_api_key` field on Settings → Launchy Illustrator
+1. `CONTENT_DESIGNER_GEMINI_API_KEY` constant in `wp-config.php` — **recommended**
+2. `LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY` constant — deprecated, see *Upgrading* below
+3. `GEMINI_API_KEY` constant
+4. `GEMINI_API_KEY` environment variable
+5. The `gemini_api_key` field on Settings → Content Designer
 
-Prefer the constant. It keeps the key out of the database, and therefore out of every backup
-and database export. See `wp-config-sample.php`.
+Prefer a constant. It keeps the key out of the database, and therefore out of every backup and
+database export. See `wp-config-sample.php`. The settings screen always names the source the key is
+actually being read from, so a forgotten constant can't masquerade as a saved field.
 
-Remaining settings live at **Settings → Launchy Illustrator**: which style to use, model names,
-and how many variations to generate. Art direction itself lives in styles (below).
+Remaining settings live at **Settings → Content Designer**: style preset, your own saved styles,
+planner guidance, reference images, how many variations to generate, and cleanup behavior.
 
 ## Usage
 
@@ -53,49 +56,30 @@ after the scan, so you can keep writing during a run without images landing in t
 `post_content` server-side, so use it when the post is not already open in the editor.
 
 The panel appears on post types supporting both `editor` and `thumbnail` (the hero sets the
-featured image). Filter `launchy_illustrator_editor_post_types` to change that.
+featured image). Filter `content_designer_editor_post_types` to change that.
 
 ## Styles
 
-A style is one named bundle of art direction: a **prompt** (the master style block prepended to
-every image), **planner guidance** (what kind of scenes suit it), and **reference images** that keep
-characters and palette consistent.
+Style is entirely settings-driven. Seven presets ship built in — clean editorial (default),
+claymation, paper-cut, whiteboard, retro, modern-tech, and watercolor-storybook. You can also write
+and save your own styles in the admin, with their own master prompt, planner guidance, and
+character reference images.
 
-Seven ship built in — clean editorial (default), claymation, paper-cut, whiteboard, retro,
-modern-tech, and watercolor-storybook.
-
-### Making your own
-
-**Settings → Launchy Illustrator → Your styles.** Pick any existing look, hit *Duplicate to my
-styles*, and edit it — the built-ins are starting points, not fixed choices. Reference images come
-from the media library picker; a style duplicated from a preset keeps that preset's references
-(which may be URLs) and lets you add attachments alongside them.
-
-Saved styles are stored in the `launchy_illustrator_user_styles` option and merged into the
-registry through the same filter plugin presets use, so nothing downstream distinguishes them from
-a built-in.
-
-### Shipping a style in code
-
-Add one through the `launchy_illustrator_style_presets` filter. `launchy-style-preset.php` is a
-working example — the "Launchy (Leading Product)" preset.
+Plugins add presets through the `content_designer_style_presets` filter. `launchy-style-preset.php`
+is the worked example: "Launchy", the 1930s rubber-hose mascot style from
+[mikebal.com](https://mikebal.com). Copy that file, swap the strings and reference URLs, and you
+have your own brand preset.
 
 It sits at the plugin root rather than in `examples/` on purpose: WordPress scans one level into
-each plugin directory, so a second file with a plugin header there registers as its own
-activatable plugin.
-
-### Upgrading from 1.0.0
-
-1.0.0 had three global override fields that replaced parts of the selected preset. Those are gone.
-On first admin load after upgrading, any values you had are snapshotted — override where set,
-preset where not — into a saved style called **My style**, which is then selected. The effective
-output does not change.
+each plugin directory, so a second file with a plugin header there registers as its own activatable
+plugin. Activate **Content Designer — Launchy Style Preset (example)** separately; its activation
+hook selects the `launchy` preset unless you have already saved a style of your own.
 
 ## Extending
 
 New media types extend `Media_Types\Media_Type` and register on the
-`launchy_illustrator_register_media_types` action. The planner, admin UI, REST routes, and
-abilities all pick them up automatically. See `examples/example-diagram-media-type.php`.
+`content_designer_register_media_types` action. The planner, admin UI, REST routes, and abilities
+all pick them up automatically. See `examples/example-diagram-media-type.php`.
 
 ### Anchors
 
@@ -111,29 +95,60 @@ every pair of real blocks, and the editor never shows those. Three authored bloc
 entries. Handing `anchor_index` to `insertBlocks()` would place images at roughly double their
 intended position. `tests/anchor-mapping.php` locks this down.
 
+## Abilities
+
+Registered under the `content-designer` category:
+
+| Ability | Purpose |
+| --- | --- |
+| `content-designer/plan-media` | Scan a draft and plan placements |
+| `content-designer/generate-media` | Generate art for a planned placement |
+| `content-designer/place-media` | Insert media into the draft |
+
 ## Tests
 
 There is no PHPUnit harness. The checks under `tests/` are plain scripts that run against a real
 WordPress via WP-CLI, which is enough to cover the logic where a silent error would be expensive:
 
 ```
-wp eval-file wp-content/plugins/launchy-illustrator/tests/anchor-mapping.php
-wp eval-file wp-content/plugins/launchy-illustrator/tests/rest-outline.php
-wp eval-file wp-content/plugins/launchy-illustrator/tests/rest-discard.php
+wp eval-file wp-content/plugins/content-designer/tests/anchor-mapping.php
+wp eval-file wp-content/plugins/content-designer/tests/rest-outline.php
+wp eval-file wp-content/plugins/content-designer/tests/rest-discard.php
 ```
 
 Each prints one line per assertion and exits non-zero on failure. None of them spend an AI call.
 
-## Abilities
+## Upgrading from Launchy Illustrator 1.x
 
-Registered under the `launchy-illustrator` category:
+2.0.0 renames the plugin. The pipeline, settings, and REST contract are unchanged in behavior, but
+every identifier moved:
 
-| Ability | Purpose |
+| 1.x | 2.0.0 |
 | --- | --- |
-| `launchy-illustrator/plan-media` | Scan a draft and plan placements |
-| `launchy-illustrator/generate-media` | Generate art for a planned placement |
-| `launchy-illustrator/place-media` | Insert media into the draft |
+| Plugin directory `launchy-illustrator` | `content-designer` |
+| `Launchy_Illustrator\` namespace | `Content_Designer\` |
+| `launchy_illustrator_*` hooks | `content_designer_*` |
+| `launchy/v1` REST namespace | `content-designer/v1` |
+| `launchy-illustrator/*` abilities | `content-designer/*` |
+| `LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY` | `CONTENT_DESIGNER_GEMINI_API_KEY` |
+
+What happens automatically: your settings, saved styles, and the planning/provenance meta on
+existing posts are copied to the new names the first time 2.0.0 loads. The old rows are left in
+place, so rolling back to 1.x still finds its data. The old API key constant still works, and the
+settings screen will tell you to rename it.
+
+What you have to do yourself:
+
+- Because the directory name changed, WordPress sees a new plugin. Activate **Content Designer**,
+  and deactivate Launchy Illustrator if it is still listed.
+- If you deploy from git, point the deployment at `/wp-content/plugins/content-designer`.
+- Any code of yours that filters `launchy_illustrator_*` or calls `launchy/v1` needs updating.
+  There are no back-compat shims for hooks or routes.
+
+## Contributing
+
+Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-GPL-2.0-or-later
+GPL-2.0-or-later. See [LICENSE](LICENSE).

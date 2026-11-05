@@ -3,7 +3,7 @@
  * EXAMPLE — adding a new media type.
  *
  * Drop this into a small companion plugin (or your theme's functions.php) to
- * teach Launchy Illustrator a brand-new kind of supporting media. The planner,
+ * teach Content Designer a brand-new kind of supporting media. The planner,
  * generator UI, REST endpoints, and abilities all pick it up automatically —
  * you only describe the type.
  *
@@ -12,29 +12,29 @@
  * and generate() for charts, infographics, or even video by overriding the
  * generate() method to call a different model.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
 defined( 'ABSPATH' ) || exit;
 
 add_action(
-	'launchy_illustrator_register_media_types',
+	'content_designer_register_media_types',
 	static function ( $registry ) {
-		if ( ! class_exists( '\Launchy_Illustrator\Media_Types\Media_Type' ) ) {
+		if ( ! class_exists( '\Content_Designer\Media_Types\Media_Type' ) ) {
 			return;
 		}
 
 		/**
 		 * Minimal concept-diagram media type.
 		 */
-		$type = new class() extends \Launchy_Illustrator\Media_Types\Media_Type {
+		$type = new class() extends \Content_Designer\Media_Types\Media_Type {
 
 			public function get_slug() {
 				return 'concept-diagram';
 			}
 
 			public function get_label() {
-				return __( 'Concept diagram', 'launchy-illustrator' );
+				return __( 'Concept diagram', 'content-designer' );
 			}
 
 			public function get_planner_guidance() {

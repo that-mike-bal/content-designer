@@ -7,14 +7,14 @@
  * generate, and how to render itself as block markup once placed.
  *
  * To add a new kind of media (diagrams, charts, video...), extend this class
- * and register it on the `launchy_illustrator_register_media_types` action.
+ * and register it on the `content_designer_register_media_types` action.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator\Media_Types;
+namespace Content_Designer\Media_Types;
 
-use Launchy_Illustrator\AI\AI_Client;
+use Content_Designer\AI\AI_Client;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
 abstract class Media_Type {
 
 	/**
-	 * Unique slug, e.g. 'launchy-illustration'.
+	 * Unique slug, e.g. 'content-designer-illustration'.
 	 *
 	 * @return string
 	 */
@@ -162,6 +162,6 @@ abstract class Media_Type {
 		 * @param array      $placement     Placement plan item.
 		 * @param Media_Type $type          The media type instance.
 		 */
-		return apply_filters( 'launchy_illustrator_block_markup', $block, $attachment_id, $placement, $this );
+		return apply_filters( 'content_designer_block_markup', $block, $attachment_id, $placement, $this );
 	}
 }

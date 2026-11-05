@@ -6,10 +6,10 @@
  * Anchors are indexes into the post's top-level block array, so the same
  * outline drives both the editorial pass and the final insertion.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator;
+namespace Content_Designer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -214,28 +214,28 @@ class Draft_Scanner {
 		}
 
 		if ( null === $target ) {
-			return __( 'At the end of the post', 'launchy-illustrator' );
+			return __( 'At the end of the post', 'content-designer' );
 		}
 
 		if ( 0 === (int) $target['ordinal'] ) {
-			return __( 'Top of post', 'launchy-illustrator' );
+			return __( 'Top of post', 'content-designer' );
 		}
 
 		if ( '' !== $target['heading'] ) {
 			/* translators: %s: heading text */
-			return sprintf( __( 'Before “%s”', 'launchy-illustrator' ), $target['heading'] );
+			return sprintf( __( 'Before “%s”', 'content-designer' ), $target['heading'] );
 		}
 
 		if ( '' !== $section ) {
 			/* translators: %s: section heading */
-			return sprintf( __( 'In “%s”', 'launchy-illustrator' ), $section );
+			return sprintf( __( 'In “%s”', 'content-designer' ), $section );
 		}
 
 		$excerpt = trim( (string) $target['excerpt'] );
 
 		if ( '' !== $excerpt ) {
 			/* translators: %s: opening words of the block the image sits above */
-			return sprintf( __( 'Before “%s”', 'launchy-illustrator' ), wp_trim_words( $excerpt, 6, '…' ) );
+			return sprintf( __( 'Before “%s”', 'content-designer' ), wp_trim_words( $excerpt, 6, '…' ) );
 		}
 
 		// Textless blocks — an image, a separator, a spacer — have nothing to
@@ -243,10 +243,10 @@ class Draft_Scanner {
 		$type = trim( str_replace( array( 'core/', '-' ), array( '', ' ' ), (string) $target['type'] ) );
 
 		if ( '' === $type || 'classic' === $type ) {
-			return __( 'Near the top of the post', 'launchy-illustrator' );
+			return __( 'Near the top of the post', 'content-designer' );
 		}
 
 		/* translators: %s: block type, e.g. "image" or "separator" */
-		return sprintf( __( 'Before the %s', 'launchy-illustrator' ), $type );
+		return sprintf( __( 'Before the %s', 'content-designer' ), $type );
 	}
 }

@@ -6,12 +6,12 @@
  * to conceptualize ideas and to pace long text — never as decoration. Encodes
  * the Leading Product content-design rules (cadence, ratio-by-role, variety).
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator;
+namespace Content_Designer;
 
-use Launchy_Illustrator\AI\AI_Client;
+use Content_Designer\AI\AI_Client;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
 class Placement_Planner {
 
 	const VALID_RATIOS = array( '1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9' );
-	const PLAN_META    = '_launchy_plan';
+	const PLAN_META    = '_content_designer_plan';
 
 	/**
 	 * Build a placement plan for a post.
@@ -39,7 +39,7 @@ class Placement_Planner {
 
 		$data = $this->decode_json( $raw );
 		if ( null === $data || empty( $data['placements'] ) || ! is_array( $data['placements'] ) ) {
-			return new WP_Error( 'launchy_bad_plan', __( 'The editorial pass did not return a usable placement plan.', 'launchy-illustrator' ) );
+			return new WP_Error( 'content_designer_bad_plan', __( 'The editorial pass did not return a usable placement plan.', 'content-designer' ) );
 		}
 
 		$plan = $this->normalize( $data['placements'], $scan );
@@ -51,7 +51,7 @@ class Placement_Planner {
 		 * @param \WP_Post $post The post being illustrated.
 		 * @param array    $scan The structural outline.
 		 */
-		$plan = apply_filters( 'launchy_illustrator_placement_plan', $plan, $post, $scan );
+		$plan = apply_filters( 'content_designer_placement_plan', $plan, $post, $scan );
 
 		update_post_meta( $post->ID, self::PLAN_META, $plan );
 
@@ -134,7 +134,7 @@ Return ONLY a JSON object, no prose, shaped exactly like:
       "aspect_ratio": "16:9",
       "job": "conceptualize",
       "scene": "Concrete, specific scene direction: pose, action, expression, supporting cast, metaphor. Specificity beats adjectives.",
-      "composition": "Camera distance and framing note so the artist composes for the crop (e.g. 'wide shot, Launchy left-of-center, open sky for the title').",
+      "composition": "Camera distance and framing note so the artist composes for the crop (e.g. 'wide shot, subject left-of-center, open sky for the title').",
       "alt_text": "One-sentence description of the scene for accessibility.",
       "rationale": "One sentence on why media helps HERE."
     }

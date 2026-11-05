@@ -14,13 +14,13 @@
 ( function ( wp ) {
 	'use strict';
 
-	window.launchy = window.launchy || {};
+	window.contentDesigner = window.contentDesigner || {};
 
 	const { select, dispatch } = wp.data;
 	const { __, sprintf } = wp.i18n;
 	const apiFetch = wp.apiFetch;
 
-	const config = window.launchyIllustrator || {};
+	const config = window.contentDesigner || {};
 
 	const initial = {
 		status: 'idle',
@@ -92,7 +92,7 @@
 	 */
 	function notifyError( message ) {
 		dispatch( 'core/notices' ).createErrorNotice( message, {
-			id: 'launchy-illustrator-error',
+			id: 'content-designer-error',
 			type: 'snackbar',
 		} );
 	}
@@ -102,7 +102,7 @@
 	 */
 	function notify( message ) {
 		dispatch( 'core/notices' ).createInfoNotice( message, {
-			id: 'launchy-illustrator-info',
+			id: 'content-designer-info',
 			type: 'snackbar',
 		} );
 	}
@@ -130,7 +130,7 @@
 		set(
 			Object.assign( {}, initial, {
 				status: 'outlining',
-				log: __( 'Reading the post…', 'launchy-illustrator' ),
+				log: __( 'Reading the post…', 'content-designer' ),
 				modalOpen: false,
 			} )
 		);
@@ -144,7 +144,7 @@
 				postTitle: outline.post.title,
 				log: sprintf(
 					/* translators: 1: word count, 2: block count */
-					__( 'Read %1$d words across %2$d blocks. Deciding where art earns its place…', 'launchy-illustrator' ),
+					__( 'Read %1$d words across %2$d blocks. Deciding where art earns its place…', 'content-designer' ),
 					outline.total_words,
 					outline.block_count
 				),
@@ -154,7 +154,7 @@
 
 			// Pin anchors to block identities now, while the document still
 			// matches what was scanned.
-			const plan = window.launchy.insert.resolveAnchors(
+			const plan = window.contentDesigner.insert.resolveAnchors(
 				scan.plan.map( function ( placement ) {
 					return Object.assign( {}, placement, { approved: true } );
 				} )
@@ -165,7 +165,7 @@
 				plan,
 				log: sprintf(
 					/* translators: %d: number of proposed placements */
-					__( 'Proposed %d placements.', 'launchy-illustrator' ),
+					__( 'Proposed %d placements.', 'content-designer' ),
 					plan.length
 				),
 			} );
@@ -174,7 +174,7 @@
 				return;
 			}
 			set( { status: 'idle', log: '' } );
-			notifyError( error.message || __( 'The scan failed.', 'launchy-illustrator' ) );
+			notifyError( error.message || __( 'The scan failed.', 'content-designer' ) );
 		}
 	}
 
@@ -212,7 +212,7 @@
 				set( {
 					log: sprintf(
 						/* translators: 1: placement role, 2: current image, 3: total images */
-						__( 'Generating %1$s (%2$d of %3$d)…', 'launchy-illustrator' ),
+						__( 'Generating %1$s (%2$d of %3$d)…', 'content-designer' ),
 						placement.role,
 						done + 1,
 						total
@@ -238,7 +238,7 @@
 					notifyError(
 						sprintf(
 							/* translators: 1: placement role, 2: error message */
-							__( 'Could not generate the %1$s image: %2$s', 'launchy-illustrator' ),
+							__( 'Could not generate the %1$s image: %2$s', 'content-designer' ),
 							placement.role,
 							error.message || ''
 						)
@@ -249,7 +249,7 @@
 
 		set( {
 			status: 'complete',
-			log: __( 'Done. Keep the ones that work.', 'launchy-illustrator' ),
+			log: __( 'Done. Keep the ones that work.', 'content-designer' ),
 		} );
 	}
 
@@ -268,13 +268,13 @@
 			return;
 		}
 
-		const outcome = window.launchy.insert.insertKept( placement, shot );
+		const outcome = window.contentDesigner.insert.insertKept( placement, shot );
 
 		if ( outcome.anchorMissing ) {
 			notify(
 				sprintf(
 					/* translators: %s: placement role */
-					__( 'The block the %s image was anchored to is gone, so it was added at the end.', 'launchy-illustrator' ),
+					__( 'The block the %s image was anchored to is gone, so it was added at the end.', 'content-designer' ),
 					placement.role
 				)
 			);
@@ -400,7 +400,7 @@
 		} catch ( error ) {
 			// Cleanup failing is not worth interrupting the author over; the
 			// attachments remain in the library and can be removed by hand.
-			window.console.warn( 'Launchy Illustrator: cleanup failed', error );
+			window.console.warn( 'Content Designer: cleanup failed', error );
 		}
 	}
 
@@ -408,7 +408,7 @@
 	 * Stop the run. Already-inserted images stay — they are the author's now.
 	 */
 	function cancel() {
-		set( { status: 'cancelled', log: __( 'Cancelled.', 'launchy-illustrator' ) } );
+		set( { status: 'cancelled', log: __( 'Cancelled.', 'content-designer' ) } );
 
 		if ( controller ) {
 			controller.abort();
@@ -426,7 +426,7 @@
 		flushDiscard( true ).then( function () {
 			set(
 				Object.assign( {}, initial, {
-					log: __( 'Images placed. Save the post when you are ready.', 'launchy-illustrator' ),
+					log: __( 'Images placed. Save the post when you are ready.', 'content-designer' ),
 				} )
 			);
 		} );
@@ -439,7 +439,7 @@
 		set( { modalOpen: !! open } );
 	}
 
-	window.launchy.store = {
+	window.contentDesigner.store = {
 		getState,
 		subscribe,
 		startRun,

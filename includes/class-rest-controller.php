@@ -1,14 +1,14 @@
 <?php
 /**
- * REST API: launchy/v1. Drives the admin UI and mirrors the abilities.
+ * REST API: content-designer/v1. Drives the admin UI and mirrors the abilities.
  *
  * Endpoints are deliberately small so each HTTP request stays short:
  * /generate produces ONE image per call and the client loops variations.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator;
+namespace Content_Designer;
 
 use WP_Error;
 use WP_REST_Request;
@@ -17,11 +17,11 @@ use WP_REST_Server;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * launchy/v1 routes.
+ * content-designer/v1 routes.
  */
 class REST_Controller {
 
-	const NS = 'launchy/v1';
+	const NS = 'content-designer/v1';
 
 	/**
 	 * Cap on submitted editor content, in bytes.
@@ -187,7 +187,7 @@ class REST_Controller {
 		foreach ( $query->posts as $post ) {
 			$drafts[] = array(
 				'id'       => $post->ID,
-				'title'    => $post->post_title ? $post->post_title : __( '(no title)', 'launchy-illustrator' ),
+				'title'    => $post->post_title ? $post->post_title : __( '(no title)', 'content-designer' ),
 				'words'    => str_word_count( wp_strip_all_tags( $post->post_content ) ),
 				'modified' => get_the_modified_date( '', $post ),
 				'status'   => $post->post_status,
@@ -219,8 +219,8 @@ class REST_Controller {
 
 		if ( strlen( (string) $content ) > self::MAX_CONTENT_BYTES ) {
 			return new WP_Error(
-				'launchy_content_too_large',
-				__( 'That draft is too large to scan.', 'launchy-illustrator' ),
+				'content_designer_content_too_large',
+				__( 'That draft is too large to scan.', 'content-designer' ),
 				array( 'status' => 413 )
 			);
 		}
@@ -241,7 +241,7 @@ class REST_Controller {
 	public function outline( WP_REST_Request $request ) {
 		$post = get_post( (int) $request['post_id'] );
 		if ( ! $post ) {
-			return new WP_Error( 'launchy_no_post', __( 'Post not found.', 'launchy-illustrator' ), array( 'status' => 404 ) );
+			return new WP_Error( 'content_designer_no_post', __( 'Post not found.', 'content-designer' ), array( 'status' => 404 ) );
 		}
 
 		$target = $this->post_to_scan( $request, $post );
@@ -252,7 +252,7 @@ class REST_Controller {
 		$scan = ( new Draft_Scanner() )->scan( $target );
 
 		if ( empty( $scan['outline'] ) ) {
-			return new WP_Error( 'launchy_empty_post', __( 'This draft has no content to scan yet.', 'launchy-illustrator' ), array( 'status' => 400 ) );
+			return new WP_Error( 'content_designer_empty_post', __( 'This draft has no content to scan yet.', 'content-designer' ), array( 'status' => 400 ) );
 		}
 
 		return array(
@@ -292,7 +292,7 @@ class REST_Controller {
 	public function scan( WP_REST_Request $request ) {
 		$post = get_post( (int) $request['post_id'] );
 		if ( ! $post ) {
-			return new WP_Error( 'launchy_no_post', __( 'Post not found.', 'launchy-illustrator' ), array( 'status' => 404 ) );
+			return new WP_Error( 'content_designer_no_post', __( 'Post not found.', 'content-designer' ), array( 'status' => 404 ) );
 		}
 
 		$target = $this->post_to_scan( $request, $post );
@@ -304,7 +304,7 @@ class REST_Controller {
 		$scan    = $scanner->scan( $target );
 
 		if ( empty( $scan['outline'] ) ) {
-			return new WP_Error( 'launchy_empty_post', __( 'This draft has no content to scan yet.', 'launchy-illustrator' ), array( 'status' => 400 ) );
+			return new WP_Error( 'content_designer_empty_post', __( 'This draft has no content to scan yet.', 'content-designer' ), array( 'status' => 400 ) );
 		}
 
 		$planner = new Placement_Planner();
@@ -333,7 +333,7 @@ class REST_Controller {
 	public function generate( WP_REST_Request $request ) {
 		$post = get_post( (int) $request['post_id'] );
 		if ( ! $post ) {
-			return new WP_Error( 'launchy_no_post', __( 'Post not found.', 'launchy-illustrator' ), array( 'status' => 404 ) );
+			return new WP_Error( 'content_designer_no_post', __( 'Post not found.', 'content-designer' ), array( 'status' => 404 ) );
 		}
 
 		$placement = $this->sanitize_placement( (array) $request['placement'] );
@@ -370,7 +370,7 @@ class REST_Controller {
 	public function place( WP_REST_Request $request ) {
 		$post = get_post( (int) $request['post_id'] );
 		if ( ! $post ) {
-			return new WP_Error( 'launchy_no_post', __( 'Post not found.', 'launchy-illustrator' ), array( 'status' => 404 ) );
+			return new WP_Error( 'content_designer_no_post', __( 'Post not found.', 'content-designer' ), array( 'status' => 404 ) );
 		}
 
 		$selections = array();
@@ -386,7 +386,7 @@ class REST_Controller {
 		}
 
 		if ( ! $selections ) {
-			return new WP_Error( 'launchy_no_selections', __( 'Nothing selected to place.', 'launchy-illustrator' ), array( 'status' => 400 ) );
+			return new WP_Error( 'content_designer_no_selections', __( 'Nothing selected to place.', 'content-designer' ), array( 'status' => 400 ) );
 		}
 
 		$placer = new Media_Placer();
@@ -428,7 +428,7 @@ class REST_Controller {
 	public function discard( WP_REST_Request $request ) {
 		$post = get_post( (int) $request['post_id'] );
 		if ( ! $post ) {
-			return new WP_Error( 'launchy_no_post', __( 'Post not found.', 'launchy-illustrator' ), array( 'status' => 404 ) );
+			return new WP_Error( 'content_designer_no_post', __( 'Post not found.', 'content-designer' ), array( 'status' => 404 ) );
 		}
 
 		$discarded = 0;
@@ -456,7 +456,7 @@ class REST_Controller {
 	private function sanitize_placement( array $raw ) {
 		$type = Plugin::instance()->media_types->get( sanitize_key( $raw['media_type'] ?? '' ) );
 		if ( ! $type ) {
-			return new WP_Error( 'launchy_bad_media_type', __( 'Unknown media type.', 'launchy-illustrator' ), array( 'status' => 400 ) );
+			return new WP_Error( 'content_designer_bad_media_type', __( 'Unknown media type.', 'content-designer' ), array( 'status' => 400 ) );
 		}
 
 		$roles = $type->get_roles();
@@ -472,7 +472,7 @@ class REST_Controller {
 
 		$scene = sanitize_textarea_field( (string) ( $raw['scene'] ?? '' ) );
 		if ( '' === $scene ) {
-			return new WP_Error( 'launchy_no_scene', __( 'Placement has no scene description.', 'launchy-illustrator' ), array( 'status' => 400 ) );
+			return new WP_Error( 'content_designer_no_scene', __( 'Placement has no scene description.', 'content-designer' ), array( 'status' => 400 ) );
 		}
 
 		$anchor = absint( $raw['anchor_index'] ?? 0 );

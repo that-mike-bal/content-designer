@@ -3,12 +3,12 @@
  * Direct Gemini REST client (generativelanguage.googleapis.com) using the
  * WordPress HTTP API. PHP port of the skill's scripts/generate_image.py.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator\AI;
+namespace Content_Designer\AI;
 
-use Launchy_Illustrator\Settings;
+use Content_Designer\Settings;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -52,7 +52,7 @@ class Gemini_Http {
 		}
 
 		if ( '' === trim( $text ) ) {
-			return new WP_Error( 'launchy_empty_response', __( 'The text model returned no content.', 'launchy-illustrator' ) );
+			return new WP_Error( 'content_designer_empty_response', __( 'The text model returned no content.', 'content-designer' ) );
 		}
 
 		return $text;
@@ -126,10 +126,10 @@ class Gemini_Http {
 		}
 
 		return new WP_Error(
-			'launchy_no_image',
+			'content_designer_no_image',
 			$said
-				? sprintf( /* translators: %s: model message */ __( 'No image returned. Model said: %s', 'launchy-illustrator' ), $said )
-				: __( 'No image returned by the model.', 'launchy-illustrator' )
+				? sprintf( /* translators: %s: model message */ __( 'No image returned. Model said: %s', 'content-designer' ), $said )
+				: __( 'No image returned by the model.', 'content-designer' )
 		);
 	}
 
@@ -145,8 +145,8 @@ class Gemini_Http {
 		$key = Settings::api_key();
 		if ( ! $key ) {
 			return new WP_Error(
-				'launchy_no_api_key',
-				__( 'No Gemini API key configured. Add it under Settings → Launchy Illustrator, or define LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY in wp-config.php.', 'launchy-illustrator' )
+				'content_designer_no_api_key',
+				__( 'No Gemini API key configured. Add it under Settings → Content Designer, or define CONTENT_DESIGNER_GEMINI_API_KEY in wp-config.php.', 'content-designer' )
 			);
 		}
 
@@ -171,11 +171,11 @@ class Gemini_Http {
 
 		if ( 200 !== $code ) {
 			$message = $json['error']['message'] ?? wp_remote_retrieve_response_message( $response );
-			return new WP_Error( 'launchy_gemini_http', sprintf( 'Gemini API error (%d): %s', $code, $message ) );
+			return new WP_Error( 'content_designer_gemini_http', sprintf( 'Gemini API error (%d): %s', $code, $message ) );
 		}
 
 		if ( ! is_array( $json ) ) {
-			return new WP_Error( 'launchy_bad_json', __( 'Unexpected response from the Gemini API.', 'launchy-illustrator' ) );
+			return new WP_Error( 'content_designer_bad_json', __( 'Unexpected response from the Gemini API.', 'content-designer' ) );
 		}
 
 		return $json;
@@ -209,17 +209,17 @@ class Gemini_Http {
 		if ( is_numeric( $ref ) ) {
 			$path = get_attached_file( (int) $ref );
 			if ( ! $path || ! file_exists( $path ) ) {
-				return new WP_Error( 'launchy_bad_reference', sprintf( 'Reference attachment %d not found.', (int) $ref ) );
+				return new WP_Error( 'content_designer_bad_reference', sprintf( 'Reference attachment %d not found.', (int) $ref ) );
 			}
 			return self::inline_from_file( $path );
 		}
 
 		$ref = (string) $ref;
 
-		// Remote URL: download once, cache in uploads/launchy-illustrator/refs.
+		// Remote URL: download once, cache in uploads/content-designer/refs.
 		if ( preg_match( '#^https?://#i', $ref ) ) {
 			$uploads = wp_upload_dir();
-			$dir     = trailingslashit( $uploads['basedir'] ) . 'launchy-illustrator/refs';
+			$dir     = trailingslashit( $uploads['basedir'] ) . 'content-designer/refs';
 			wp_mkdir_p( $dir );
 
 			$ext   = strtolower( pathinfo( wp_parse_url( $ref, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
@@ -230,7 +230,7 @@ class Gemini_Http {
 				// wp_safe_remote_get blocks requests to loopback/private hosts.
 				$response = wp_safe_remote_get( $ref, array( 'timeout' => 30 ) );
 				if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-					return new WP_Error( 'launchy_bad_reference', sprintf( 'Could not download reference %s.', esc_url_raw( $ref ) ) );
+					return new WP_Error( 'content_designer_bad_reference', sprintf( 'Could not download reference %s.', esc_url_raw( $ref ) ) );
 				}
 				file_put_contents( $cache, wp_remote_retrieve_body( $response ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 			}
@@ -238,7 +238,7 @@ class Gemini_Http {
 			return self::inline_from_file( $cache );
 		}
 
-		return new WP_Error( 'launchy_bad_reference', sprintf( 'Unsupported reference: %s', $ref ) );
+		return new WP_Error( 'content_designer_bad_reference', sprintf( 'Unsupported reference: %s', $ref ) );
 	}
 
 	/**
@@ -250,7 +250,7 @@ class Gemini_Http {
 	private static function inline_from_file( $path ) {
 		$mime = wp_check_filetype( $path )['type'];
 		if ( ! $mime || 0 !== strpos( $mime, 'image/' ) ) {
-			return new WP_Error( 'launchy_bad_reference', sprintf( '%s is not an image.', basename( $path ) ) );
+			return new WP_Error( 'content_designer_bad_reference', sprintf( '%s is not an image.', basename( $path ) ) );
 		}
 
 		return array(

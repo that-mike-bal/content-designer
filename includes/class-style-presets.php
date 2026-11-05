@@ -3,15 +3,15 @@
  * Built-in style presets — NotebookLM-style "pick a look" starting points.
  *
  * A preset bundles a master style prompt, planner guidance, and (optionally)
- * reference images. The user picks one in Settings → Launchy Illustrator; the
+ * reference images. The user picks one in Settings → Content Designer; the
  * "Master style prompt" field overrides the preset when filled in. Third-party
- * plugins add their own via the `launchy_illustrator_style_presets` filter
- * (see examples/launchy-style-preset.php).
+ * plugins add their own via the `content_designer_style_presets` filter
+ * (see examples/content-designer-style-preset.php).
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator;
+namespace Content_Designer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -31,8 +31,8 @@ class Style_Presets {
 		$presets = array(
 
 			'editorial-minimal'    => array(
-				'label'       => __( 'Clean editorial', 'launchy-illustrator' ),
-				'description' => __( 'Flat, modern editorial illustration. Neutral and versatile.', 'launchy-illustrator' ),
+				'label'       => __( 'Clean editorial', 'content-designer' ),
+				'description' => __( 'Flat, modern editorial illustration. Neutral and versatile.', 'content-designer' ),
 				'prompt'      => <<<'PROMPT'
 # Role
 You are an accomplished editorial illustrator with a consistent, recognizable style.
@@ -54,8 +54,8 @@ PROMPT
 			),
 
 			'claymation'           => array(
-				'label'       => __( 'Claymation', 'launchy-illustrator' ),
-				'description' => __( 'Hand-sculpted stop-motion look: plasticine characters on miniature sets.', 'launchy-illustrator' ),
+				'label'       => __( 'Claymation', 'content-designer' ),
+				'description' => __( 'Hand-sculpted stop-motion look: plasticine characters on miniature sets.', 'content-designer' ),
 				'prompt'      => <<<'PROMPT'
 # Role
 You are a stop-motion studio's lead sculptor and set builder, photographing hand-made scenes.
@@ -80,8 +80,8 @@ PROMPT
 			),
 
 			'paper-cut'            => array(
-				'label'       => __( 'Paper cut art', 'launchy-illustrator' ),
-				'description' => __( 'Layered cut-paper collage with crisp edges and stacked depth.', 'launchy-illustrator' ),
+				'label'       => __( 'Paper cut art', 'content-designer' ),
+				'description' => __( 'Layered cut-paper collage with crisp edges and stacked depth.', 'content-designer' ),
 				'prompt'      => <<<'PROMPT'
 # Role
 You are a paper artist who builds illustrations entirely from layered, hand-cut paper.
@@ -105,8 +105,8 @@ PROMPT
 			),
 
 			'whiteboard'           => array(
-				'label'       => __( 'Whiteboard marker', 'launchy-illustrator' ),
-				'description' => __( 'Energetic hand-drawn dry-erase sketches with arrows and annotations.', 'launchy-illustrator' ),
+				'label'       => __( 'Whiteboard marker', 'content-designer' ),
+				'description' => __( 'Energetic hand-drawn dry-erase sketches with arrows and annotations.', 'content-designer' ),
 				'prompt'      => <<<'PROMPT'
 # Role
 You are a brilliant visual facilitator sketching ideas live on a whiteboard.
@@ -132,8 +132,8 @@ PROMPT
 			),
 
 			'retro-illustration'   => array(
-				'label'       => __( 'Retro illustration', 'launchy-illustrator' ),
-				'description' => __( 'Mid-century print style: textured inks, halftones, optimistic energy.', 'launchy-illustrator' ),
+				'label'       => __( 'Retro illustration', 'content-designer' ),
+				'description' => __( 'Mid-century print style: textured inks, halftones, optimistic energy.', 'content-designer' ),
 				'prompt'      => <<<'PROMPT'
 # Role
 You are a celebrated mid-century commercial illustrator whose prints defined the optimistic look of 1950s magazines.
@@ -158,8 +158,8 @@ PROMPT
 			),
 
 			'modern-tech'          => array(
-				'label'       => __( 'Modern tech design', 'launchy-illustrator' ),
-				'description' => __( 'Contemporary product-design illustration: flat vector, soft gradients, isometric moments.', 'launchy-illustrator' ),
+				'label'       => __( 'Modern tech design', 'content-designer' ),
+				'description' => __( 'Contemporary product-design illustration: flat vector, soft gradients, isometric moments.', 'content-designer' ),
 				'prompt'      => <<<'PROMPT'
 # Role
 You are the design lead for a top-tier tech brand, producing the illustration system for its product site.
@@ -184,8 +184,8 @@ PROMPT
 			),
 
 			'watercolor-storybook' => array(
-				'label'       => __( 'Watercolor storybook', 'launchy-illustrator' ),
-				'description' => __( 'Loose watercolor washes with ink lines — warm, whimsical, hand-painted.', 'launchy-illustrator' ),
+				'label'       => __( 'Watercolor storybook', 'content-designer' ),
+				'description' => __( 'Loose watercolor washes with ink lines — warm, whimsical, hand-painted.', 'content-designer' ),
 				'prompt'      => <<<'PROMPT'
 # Role
 You are a beloved children's-book illustrator painting in watercolor and ink.
@@ -216,7 +216,7 @@ PROMPT
 		 *
 		 * @param array $presets Presets keyed by id.
 		 */
-		return apply_filters( 'launchy_illustrator_style_presets', $presets );
+		return apply_filters( 'content_designer_style_presets', $presets );
 	}
 
 	/**

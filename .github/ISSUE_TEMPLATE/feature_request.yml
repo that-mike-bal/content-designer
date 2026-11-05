@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest something the plugin should do.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Two things are out of scope by design: publishing (the plugin always stops at the draft),
+        and placements that exist for decoration. A new *look* is usually a style rather than a
+        feature — you can save one in the admin or ship one through the
+        `content_designer_style_presets` filter.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What were you trying to do when you wanted this? Describe the situation, not the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you have in mind
+      description: Optional. If you already know how it should work, say so.
+  - type: checkboxes
+    id: kind
+    attributes:
+      label: Does this need code?
+      options:
+        - label: I think this is a new media type (diagram, chart, video) rather than a change to the planner
+        - label: I'd be up for writing it

@@ -2,10 +2,10 @@
 /**
  * Settings: API key, models, style prompt, references, behavior.
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator;
+namespace Content_Designer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Settings {
 
-	const OPTION = 'launchy_illustrator_settings';
+	const OPTION = 'content_designer_settings';
 
 	/**
 	 * Hook in.
@@ -29,10 +29,10 @@ class Settings {
 	 */
 	public function register_menu() {
 		add_options_page(
-			__( 'Launchy Illustrator', 'launchy-illustrator' ),
-			__( 'Launchy Illustrator', 'launchy-illustrator' ),
+			__( 'Content Designer', 'content-designer' ),
+			__( 'Content Designer', 'content-designer' ),
 			'manage_options',
-			'launchy-illustrator-settings',
+			'content-designer-settings',
 			array( $this, 'render_page' )
 		);
 	}
@@ -134,8 +134,13 @@ class Settings {
 	 * @return array Source slug ('' when nothing is set) and the key.
 	 */
 	private static function resolve_api_key() {
+		if ( defined( 'CONTENT_DESIGNER_GEMINI_API_KEY' ) && CONTENT_DESIGNER_GEMINI_API_KEY ) {
+			return array( 'constant', (string) CONTENT_DESIGNER_GEMINI_API_KEY );
+		}
 		if ( defined( 'LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY' ) && LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY ) {
-			return array( 'constant', (string) LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY );
+			// Pre-2.0 name. Still honored so a rename does not take a working
+			// site's key away, but the settings screen asks for it to be moved.
+			return array( 'constant_legacy', (string) LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY );
 		}
 		if ( defined( 'GEMINI_API_KEY' ) && GEMINI_API_KEY ) {
 			return array( 'constant_generic', (string) GEMINI_API_KEY );
@@ -161,8 +166,9 @@ class Settings {
 	}
 
 	/**
-	 * Which source api_key() is reading from: 'constant', 'constant_generic',
-	 * 'environment', 'option', or '' when nothing is configured anywhere.
+	 * Which source api_key() is reading from: 'constant', 'constant_legacy',
+	 * 'constant_generic', 'environment', 'option', or '' when nothing is
+	 * configured anywhere.
 	 *
 	 * @return string
 	 */
@@ -181,15 +187,17 @@ class Settings {
 	public static function api_key_source_label() {
 		switch ( self::api_key_source() ) {
 			case 'constant':
-				return __( 'In use: the LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY constant in wp-config.php. Anything saved in this field is ignored.', 'launchy-illustrator' );
+				return __( 'In use: the CONTENT_DESIGNER_GEMINI_API_KEY constant in wp-config.php. Anything saved in this field is ignored.', 'content-designer' );
+			case 'constant_legacy':
+				return __( 'In use: the LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY constant in wp-config.php — the pre-2.0 name. It still works, but rename it to CONTENT_DESIGNER_GEMINI_API_KEY; support for the old name will go away. Anything saved in this field is ignored.', 'content-designer' );
 			case 'constant_generic':
-				return __( 'In use: the GEMINI_API_KEY constant in wp-config.php. Anything saved in this field is ignored.', 'launchy-illustrator' );
+				return __( 'In use: the GEMINI_API_KEY constant in wp-config.php. Anything saved in this field is ignored.', 'content-designer' );
 			case 'environment':
-				return __( 'In use: the GEMINI_API_KEY environment variable. Anything saved in this field is ignored.', 'launchy-illustrator' );
+				return __( 'In use: the GEMINI_API_KEY environment variable. Anything saved in this field is ignored.', 'content-designer' );
 			case 'option':
-				return __( 'In use: the key saved on this screen.', 'launchy-illustrator' );
+				return __( 'In use: the key saved on this screen.', 'content-designer' );
 			default:
-				return __( 'No Gemini API key is configured anywhere, so generation will fail. Save one here, or define LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY in wp-config.php above the "stop editing" line — below that line it is defined too late for plugins to see.', 'launchy-illustrator' );
+				return __( 'No Gemini API key is configured anywhere, so generation will fail. Save one here, or define CONTENT_DESIGNER_GEMINI_API_KEY in wp-config.php above the "stop editing" line — below that line it is defined too late for plugins to see.', 'content-designer' );
 		}
 	}
 
@@ -207,15 +215,15 @@ class Settings {
 		 *
 		 * @param array $refs URLs or attachment IDs.
 		 */
-		return apply_filters( 'launchy_illustrator_reference_images', $refs );
+		return apply_filters( 'content_designer_reference_images', $refs );
 	}
 
 	/**
-	 * Register the settings screen (Settings > Launchy Illustrator).
+	 * Register the settings screen (Settings > Content Designer).
 	 */
 	public function register() {
 		register_setting(
-			'launchy_illustrator',
+			'content_designer',
 			self::OPTION,
 			array(
 				'type'              => 'object',
@@ -223,18 +231,18 @@ class Settings {
 			)
 		);
 
-		add_settings_section( 'launchy_main', __( 'AI Generation', 'launchy-illustrator' ), '__return_empty_string', 'launchy_illustrator' );
+		add_settings_section( 'content_designer_main', __( 'AI Generation', 'content-designer' ), '__return_empty_string', 'content_designer' );
 
 		$fields = array(
-			'gemini_api_key'    => array( __( 'Gemini API key', 'launchy-illustrator' ), 'password', __( 'Leave empty if defined as LAUNCHY_ILLUSTRATOR_GEMINI_API_KEY in wp-config.php (recommended).', 'launchy-illustrator' ) ),
-			'text_model'        => array( __( 'Text model (editorial pass)', 'launchy-illustrator' ), 'text', __( 'Default is Gemini 3.8 Flash (gemini-3.8-flash).', 'launchy-illustrator' ) ),
-			'image_model'       => array( __( 'Image model', 'launchy-illustrator' ), 'text', __( 'Default is Nano Banana 2.1 (gemini-nano-banana-2.1).', 'launchy-illustrator' ) ),
-			'use_wp_ai_client'  => array( __( 'Prefer the WordPress AI Client for text when available', 'launchy-illustrator' ), 'checkbox', __( 'Image generation always calls Gemini directly so reference images and aspect ratios are honored.', 'launchy-illustrator' ) ),
-			'style_preset'      => array( __( 'Style preset', 'launchy-illustrator' ), 'select', __( 'Pick a ready-made look. Plugins can add more presets (e.g. a brand mascot preset).', 'launchy-illustrator' ) ),
-			'hero_variations'   => array( __( 'Variations for hero images', 'launchy-illustrator' ), 'number', '' ),
-			'inline_variations' => array( __( 'Variations for other images', 'launchy-illustrator' ), 'number', '' ),
-			'hero_in_content'   => array( __( 'Also insert the hero into the post body', 'launchy-illustrator' ), 'checkbox', __( 'The hero is always set as the featured image. Enable if your theme does not render featured images.', 'launchy-illustrator' ) ),
-			'cleanup_variants'  => array( __( 'Delete unchosen variations after placement', 'launchy-illustrator' ), 'checkbox', '' ),
+			'gemini_api_key'    => array( __( 'Gemini API key', 'content-designer' ), 'password', __( 'Your own Google Gemini API key — get one free at https://aistudio.google.com/apikey. Leave this empty if you define CONTENT_DESIGNER_GEMINI_API_KEY in wp-config.php, which is recommended: it keeps the key out of the database.', 'content-designer' ) ),
+			'text_model'        => array( __( 'Text model (editorial pass)', 'content-designer' ), 'text', __( 'Default is Gemini 3.8 Flash (gemini-3.8-flash).', 'content-designer' ) ),
+			'image_model'       => array( __( 'Image model', 'content-designer' ), 'text', __( 'Default is Nano Banana 2.1 (gemini-nano-banana-2.1).', 'content-designer' ) ),
+			'use_wp_ai_client'  => array( __( 'Prefer the WordPress AI Client for text when available', 'content-designer' ), 'checkbox', __( 'Image generation always calls Gemini directly so reference images and aspect ratios are honored.', 'content-designer' ) ),
+			'style_preset'      => array( __( 'Style preset', 'content-designer' ), 'select', __( 'Pick a ready-made look. Plugins can add more presets (e.g. a brand mascot preset).', 'content-designer' ) ),
+			'hero_variations'   => array( __( 'Variations for hero images', 'content-designer' ), 'number', '' ),
+			'inline_variations' => array( __( 'Variations for other images', 'content-designer' ), 'number', '' ),
+			'hero_in_content'   => array( __( 'Also insert the hero into the post body', 'content-designer' ), 'checkbox', __( 'The hero is always set as the featured image. Enable if your theme does not render featured images.', 'content-designer' ) ),
+			'cleanup_variants'  => array( __( 'Delete unchosen variations after placement', 'content-designer' ), 'checkbox', '' ),
 		);
 
 		foreach ( $fields as $key => $def ) {
@@ -242,13 +250,13 @@ class Settings {
 				$key,
 				$def[0],
 				array( $this, 'render_field' ),
-				'launchy_illustrator',
-				'launchy_main',
+				'content_designer',
+				'content_designer_main',
 				array(
 					'key'       => $key,
 					'type'      => $def[1],
 					'help'      => $def[2],
-					'label_for' => 'launchy_' . $key,
+					'label_for' => 'content_designer_' . $key,
 				)
 			);
 		}
@@ -298,7 +306,7 @@ class Settings {
 		$key   = $args['key'];
 		$value = self::get( $key );
 		$name  = esc_attr( self::OPTION . '[' . $key . ']' );
-		$id    = esc_attr( 'launchy_' . $key );
+		$id    = esc_attr( 'content_designer_' . $key );
 
 		switch ( $args['type'] ) {
 			case 'select':
@@ -324,7 +332,7 @@ class Settings {
 				printf( '<input type="number" min="1" max="4" id="%s" name="%s" value="%s" class="small-text" />', $id, $name, esc_attr( (string) $value ) );
 				break;
 			case 'password':
-				printf( '<input type="password" id="%s" name="%s" value="" autocomplete="new-password" class="regular-text" placeholder="%s" />', $id, $name, $value ? esc_attr__( '(saved — enter to replace)', 'launchy-illustrator' ) : '' );
+				printf( '<input type="password" id="%s" name="%s" value="" autocomplete="new-password" class="regular-text" placeholder="%s" />', $id, $name, $value ? esc_attr__( '(saved — enter to replace)', 'content-designer' ) : '' );
 				break;
 			default:
 				printf( '<input type="text" id="%s" name="%s" value="%s" class="regular-text" />', $id, $name, esc_attr( (string) $value ) );
@@ -352,11 +360,11 @@ class Settings {
 		}
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Launchy Illustrator', 'launchy-illustrator' ); ?></h1>
+			<h1><?php esc_html_e( 'Content Designer', 'content-designer' ); ?></h1>
 			<form action="options.php" method="post">
 				<?php
-				settings_fields( 'launchy_illustrator' );
-				do_settings_sections( 'launchy_illustrator' );
+				settings_fields( 'content_designer' );
+				do_settings_sections( 'content_designer' );
 				submit_button();
 				?>
 			</form>
@@ -364,7 +372,7 @@ class Settings {
 			/**
 			 * Render extra UI below the settings form (the style editor).
 			 */
-			do_action( 'launchy_illustrator_after_settings_form' );
+			do_action( 'content_designer_after_settings_form' );
 			?>
 		</div>
 		<?php

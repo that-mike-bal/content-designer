@@ -2,18 +2,18 @@
 /**
  * The built-in media type: AI illustrations in the site's own configured style.
  *
- * Everything brand-specific lives in settings (Settings → Launchy Illustrator):
+ * Everything brand-specific lives in settings (Settings → Content Designer):
  * the master style prompt, the planner guidance, and the character/style
  * reference images. Ship your own mascot, palette, and art direction there —
- * or load a preset (see examples/launchy-style-preset.php).
+ * or load a preset (see examples/content-designer-style-preset.php).
  *
- * @package Launchy_Illustrator
+ * @package Content_Designer
  */
 
-namespace Launchy_Illustrator\Media_Types;
+namespace Content_Designer\Media_Types;
 
-use Launchy_Illustrator\Settings;
-use Launchy_Illustrator\Style_Presets;
+use Content_Designer\Settings;
+use Content_Designer\Style_Presets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,7 +33,7 @@ class Illustration extends Media_Type {
 	 * {@inheritdoc}
 	 */
 	public function get_label() {
-		return __( 'AI illustration', 'launchy-illustrator' );
+		return __( 'AI illustration', 'content-designer' );
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Illustration extends Media_Type {
 		 *
 		 * @param string $guidance Guidance text injected into the planning prompt.
 		 */
-		return apply_filters( 'launchy_illustrator_planner_guidance', $guidance );
+		return apply_filters( 'content_designer_planner_guidance', $guidance );
 	}
 
 	/**
@@ -100,7 +100,7 @@ class Illustration extends Media_Type {
 		 * @param string $style     Style prompt.
 		 * @param array  $placement Placement being generated.
 		 */
-		$style = apply_filters( 'launchy_illustrator_style_prompt', $style, $placement );
+		$style = apply_filters( 'content_designer_style_prompt', $style, $placement );
 
 		$format = sprintf(
 			'## Format
@@ -116,7 +116,7 @@ Compose for a %1$s aspect ratio image used as the post\'s %2$s. %3$s',
 	/**
 	 * Fallback art direction used when no style prompt is configured yet.
 	 * Deliberately neutral — the real value comes from the user's own style
-	 * prompt in Settings → Launchy Illustrator.
+	 * prompt in Settings → Content Designer.
 	 *
 	 * @return string
 	 */
